@@ -5,3 +5,16 @@
 .pushed {
   opacity : 0.5;
 }
+
+td.actions ul { margin: 0 }
+td.actions .dropdown-menu {
+  min-width : 80px;
+}
+
+table.patches {
+  margin-bottom : 85px;
+}
+
+table.patches td {
+  vertical-align : middle;
+}

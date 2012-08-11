@@ -48,6 +48,17 @@ module Tracker
       status 200
     end
 
+    get '/patches/:id/remove' do
+      PatchSet.first(:id => params[:id]).destroy!
+      redirect back
+    end
+
+    get '/patch/:id/:status' do
+      halt(400, 'Unsupported status') unless ['ack', 'nack', 'push'].include?params[:status]
+      Patch.first(:id => params[:id]).update(:status => params[:status].intern, :updated_by => credentials[:user])
+      redirect back
+    end
+
     get '/favico.ico' do
       halt 404, "No I don't have any favicon.ico"
     end

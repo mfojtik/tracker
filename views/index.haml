@@ -1,30 +1,47 @@
-:javascript
-  $(function(){
-    $(".collapse").collapse()
-  });
-
 #patches.accordion
   - @sets.each do |set|
     .accordion-group
       %div{ :class => "accordion-heading #{set.pushed? ? 'pushed' : ''}"}
+        %span{ :style => 'float:right;margin:5px'}
+          %strong="#{format_patch_numbers(set.patches)}"
+          %em="[rev#{set.revision}]"
         %a{:class => 'accordion-toggle', :'data-toggle' => 'collapse', :'data-parent' => :patches, :href => "#set#{set.id}"}
-          %h3
-            ="##{set.id}"
-            %span{ :style => 'float:right'}
-              %i.icon-user
-              =set.author
-          ="<b>#{Time.parse(set.created_at.to_s).ago_in_words}</b>: "
-          ="[rev#{set.revision}, #{format_patch_numbers(set.patches)}]"
-      %div{:id => "set#{set.id}", :class => 'accordion-body in collapse', :style => "height: auto; "}
+          %h3{ :style => 'color:#000;font-size:120%;'}="##{set.id} #{set.author}"
+          %b{ :style => 'float:left;'}=Time.parse(set.created_at.to_s).ago_in_words
+        %hr
+      %div{:id => "set#{set.id}", :class => 'accordion-body in collapse', :style => "height: auto; clear:both;"}
         .accordion-inner
-          %table{ :class => 'table table-striped table-bordered'}
+          %table{ :class => 'table table-striped table-bordered patches'}
+            %thead
+              %tr
+                %th{ :width => '80px'}  Commit
+                %th Description
+                %th{ :width => '50px'} Status
+                %th{ :width => '150px', :style => 'text-align: center'} Modified by
+                %th{ :width => '120px', :style => 'text-align : center'}
+                  %a{ :href => "/patches/#{set.id}/remove", :class => 'btn btn-danger' }
+                    %i{ :class => 'icon-remove'}
+                    Remove all
             %tbody
               - set.patches.each do |p|
                 %tr
-                  %td{ :width => '80px', :style => 'text-align: center'}
+                  %td{:style => 'text-align: center'}
                     %code=p.commit[-8, 8]
                   %td=p.message
-                  %td{ :width => '50px', :style => 'text-align: center'}
+                  %td{:style => 'text-align: center'}
                     =format_status p.status
-                  %td{ :style => 'text-align : center'}
+                  %td{:style => 'text-align : center'}
                     =p.updated_by || '-'
+                  %td.actions
+                    %ul.nav
+                      %li.dropdown{ :style => 'text-align : center;'}
+                        %a{ :href => '#', :class => 'btn dropdown-toggle', 'data-toggle' => 'dropdown'}
+                          %i{ :class => 'icon-cog'}
+                          %b Change
+                        %ul{:class => 'dropdown-menu'}
+                          %li
+                            %a{ :href => "/patch/#{p.id}/ack"} ACK
+                          %li
+                            %a{ :href => "/patch/#{p.id}/nack"} NACK
+                          %li
+                            %a{ :href => "/patch/#{p.id}/push"} PUSH
