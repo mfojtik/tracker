@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'rest-client'
+require 'trollop'
+require 'pp'
+
+$:.unshift File::expand_path(File.join(File.dirname(__FILE__), '..'))
+
+require 'lib/command.rb'
+
+opts = Trollop::options do
+  opt :dir, "GIT directory to use", :short => 'd', :default => '.'
+  opt :config, "Tracker config file location", :short => 'c', :default => "#{File.join(ENV['HOME'], '.trackerrc')}"
+  opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
+end
+
+Tracker::Cmd.config(:set, :file => opts[:config])
+
+def print_usage
+  puts 'Usage:'
+  puts
+  puts 'tracker record    -   Record current patchset to tracker'
+  puts 'tracker ack       -   ACK all patches in current branch'
+  puts 'tracker nack      -   NACK all patches in current branch'
+  puts 'tracker push      -   Mark all patches in current branch as PUSHED'
+  puts 'tracker status    -   Display review status for current branch'
+  puts
+  system("#{__FILE__} --help")
+  puts
+  puts 'Examples:'
+  puts
+  puts '$ tracker record -o 45    # Record current branch and obsolete patchset 45 (bump revision)'
+  ''
+end
+
+puts case ARGV[0]
+  when 'record' then Tracker::Cmd.record(opts[:dir], opts[:obsolete])
+  when 'ack' then Tracker::Cmd.ack(opts[:dir])
+  when 'nack' then Tracker::Cmd.nack(opts[:dir])
+  when 'push' then Tracker::Cmd.push(opts[:dir])
+  when 'status' then Tracker::Cmd.status(opts[:dir])
+  else print_usage
+end

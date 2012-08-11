@@ -1,0 +1,27 @@
+!!! 5
+%html
+  %head
+    %meta{:charset => "utf-8"}/
+    %title=url
+    %meta{:content => "", :name => "description"}/
+    %meta{:content => "", :name => "author"}/
+    / Le HTML5 shim, for IE6-8 support of HTML elements
+    /[if lt IE 9]
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    / Le styles
+    %link{:href => "/css/bootstrap.css", :rel => "stylesheet"}/
+    %link{:href => "/css/prettify.css", :rel => "stylesheet"}/
+    %link{:href => "/css/application.css", :rel => "stylesheet"}/
+    %script{ :src => '/js/jquery.min.js'}
+    %script{ :src => '/js/bootstrap.min.js'}
+    %script{ :src => '/js/bootstrap-collapse.js'}
+    %script{ :src => '/js/prettify.js'}
+    :css
+      body {
+        padding-top: 10px;
+      }
+
+  %body
+    .container
+      .row
+        .span12=yield
