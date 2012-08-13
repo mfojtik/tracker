@@ -127,6 +127,7 @@ module Tracker
       # Remove messages from Array
       patches.pop
       puts
+      counter = 0
       patches.each do |p|
         begin
           response = RestClient.get(
@@ -138,11 +139,17 @@ module Tracker
           )
           response = JSON::parse(response)
           puts '[%s][%s][rev%s] %s' % [response['commit'][-8, 8], response['status'].upcase, response['revision'], response['message']]
+          counter+=1
         rescue => e
+          next if response == 'null'
           puts '[ERR][%s] %s' % [p['hashes']['commit'][-8, 8], e.message]
         end
       end
-      "  |\n  |--------> [%s]\n\n" % config[:url]
+      if counter == 0
+        "ERR: This branch is not recorded yet. ($ tracker record)\n\n"
+      else
+        "  |\n  |--------> [%s]\n\n" % config[:url]
+      end
     end
 
     private
