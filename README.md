@@ -17,7 +17,8 @@ The page appears to be empty, because you don't have any patches recorded yet.
 Now choose a GIT repo from where you want to record your patches. That repo
 should have a designated branch with your work checked out (it should be the current working branch).
 
-Now you can record the patches:
+Now you can record the patches (<em>the -d part is optional, when omitted, current
+working directory is used instead</em>:
 
 * <code>$ tracker record -d PATH_TO_YOUR_GIT_REPO</code>
 
