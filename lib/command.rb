@@ -1,6 +1,7 @@
 module Tracker
   module Cmd
 
+    require 'yaml'
     require 'json'
     require 'base64'
 
