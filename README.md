@@ -81,6 +81,16 @@ TODO
 * others?
 
 
+FAQ
+---------
+
+* <b>Q: Why not Gerrit/etc ?</b>
+
+Because Gerrit is 'too much'. We don't want to change the way we do patch
+reviews (using mailing list), we just want to keep 'track' about our patches, so
+they don't get lost in list after a while.
+
+
 Designed workflow:
 ---------
 
