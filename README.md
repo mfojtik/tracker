@@ -74,7 +74,7 @@ Then edit the <code>~/.trackerrc</code> file and provide valid credentials / URL
 TODO
 ---------
 
-See: [Issues](https://github.com/mifo/tracker/issues)
+See: [Issues](https://github.com/mifo/tracker/issues?labels=enhancement&page=1&state=open)
 
 FAQ
 ---------
