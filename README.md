@@ -48,7 +48,7 @@ that you're going to push them:
 The patches will get the 'PUSH' stamp and tracker job is done here. You may push
 your patches to remote GIT repository now :-)
 
-<b>UPDATE:</b>
+<b>Patchset revisions:</b>
 
 Tracker now support 'obsoleting' patch sets when they are 're-sent' (ie. new
 revision of the same patch set is sent to list). To obsolete particular patch
@@ -59,6 +59,16 @@ your new patchset in this way:
 
 The new patchset will replace the old patchset and the version of 'rev' will
 be bumped by 1.
+
+<b>Client configuration</b>
+
+By default the tracker command line client will try to connect to tracker
+server running on localhost using 'default' credentials. You might need
+to change this by:
+
+$ <code>wget https://raw.github.com/mifo/tracker/master/config/trackerrc.example -O ~/.trackerrc</code>
+
+Then edit the <code>~/.trackerrc</code> file and provide valid credentials / URL.
 
 TODO
 ---------
