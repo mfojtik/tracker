@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Call git send-email
+git send-email $@
+
+GIT_EXIT_STATUS = $?
+
+# If send-email succeed then record the patches
+
+if [[ $GIT_EXIT_STATUS == 0 ]]; then
+  tracker record
+end
