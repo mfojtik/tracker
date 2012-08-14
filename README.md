@@ -74,12 +74,7 @@ Then edit the <code>~/.trackerrc</code> file and provide valid credentials / URL
 TODO
 ---------
 
-* <del>authentication (static YAML file?)</del>
-* <del>tracker status</del>
-* git hook integration
-* mail notification
-* others?
-
+See: [Issues](https://github.com/mifo/tracker/issues?labels=enhancement&page=1&state=open)
 
 FAQ
 ---------
@@ -89,6 +84,10 @@ FAQ
 Because Gerrit is 'too much'. We don't want to change the way we do patch
 reviews (using mailing list), we just want to keep 'track' about our patches, so
 they don't get lost in list after a while.
+
+* <b>Q: Will Tracker watch my mailing list</b>
+
+No.
 
 
 Designed workflow:
