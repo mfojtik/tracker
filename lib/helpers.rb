@@ -1,3 +1,9 @@
+class DateTime
+  def nice_format
+    self.strftime("%m/%d/%Y %H:%M:%S")
+  end
+end
+
 module Tracker
   module Helpers
 
@@ -8,7 +14,7 @@ module Tracker
         when :new then "<span class='badge badge-info'>#{value.upcase}</span>"
         when :ack then "<span class='badge badge-success'>#{value.upcase}</span>"
         when :nack then "<span class='badge badge-important'>#{value.upcase}</span>"
-        when :push then  "<span class='badge'>#{value.upcase}</span>"
+        else "<span class='badge'>#{value.upcase}</span>"
         end
       end
 
@@ -21,6 +27,14 @@ module Tracker
           result += ', %d nacked' % patches.all(:status => :nack).size
         end
         result
+      end
+
+      VALID_STATUS = [ :ack, :nack, :push, :note ]
+
+      def check_valid_status!
+        if params[:status].nil? || !VALID_STATUS.include?(params[:status].to_sym)
+          halt 400, 'Requested status update not supported'
+        end
       end
 
     end

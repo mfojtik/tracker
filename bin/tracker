@@ -13,6 +13,7 @@ opts = Trollop::options do
   opt :dir, "GIT directory to use", :short => 'd', :default => '.'
   opt :config, "Tracker config file location", :short => 'c', :default => "#{File.join(ENV['HOME'], '.trackerrc')}"
   opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
+  opt :message, "Add short message to actions", :short => 'm', :type => :string
 end
 
 Tracker::Cmd.config(:set, :file => opts[:config])
@@ -36,9 +37,9 @@ end
 
 puts case ARGV[0]
   when 'record' then Tracker::Cmd.record(opts[:dir], opts[:obsolete])
-  when 'ack' then Tracker::Cmd.ack(opts[:dir])
-  when 'nack' then Tracker::Cmd.nack(opts[:dir])
-  when 'push' then Tracker::Cmd.push(opts[:dir])
+  when 'ack' then Tracker::Cmd.ack(opts[:dir], :message => opts[:message])
+  when 'nack' then Tracker::Cmd.nack(opts[:dir], :message => opts[:message])
+  when 'push' then Tracker::Cmd.push(opts[:dir], :message => opts[:message])
   when 'status' then Tracker::Cmd.status(opts[:dir])
   else print_usage
 end

@@ -31,7 +31,8 @@
               - set.patches.each do |p|
                 %tr
                   %td{:style => 'text-align: center'}
-                    %code=p.commit[-8, 8]
+                    %a{ :href => '/patches/%s' % p.commit }
+                      %code=p.commit[-8, 8]
                   %td=p.message
                   %td{:style => 'text-align: center'}
                     =format_status p.status

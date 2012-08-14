@@ -1,0 +1,108 @@
+:javascript
+  $(function() {
+    $("#note_frm").hide();
+    $("#note_toggle").click(function() {
+      $("#note_frm").toggle();
+    })
+    $(".pushed .collapse").collapse()
+  })
+
+%h3
+  %a{ :href => '/' }="##{@patch.patch_set.id}: "
+  =@patch.message
+
+%ul.nav.nav-pills.pull-right
+  %li.dropdown{ :style => 'text-align : center;'}
+    %a{ :href => '#', :class => 'dropdown-toggle', 'data-toggle' => 'dropdown'}
+      %i{ :class => 'icon-cog'}
+      %b Quick Action
+    %ul{:class => 'dropdown-menu'}
+      %li
+        %a{ :href => "/patch/#{@patch.id}/ack"} ACK
+      %li
+        %a{ :href => "/patch/#{@patch.id}/nack"} NACK
+      %li
+        %a{ :href => "/patch/#{@patch.id}/push"} PUSH
+
+%table.table.table-bordered.patch
+  %tbody
+    %tr
+      %th{:style => 'width:80px;'} Author
+      %td=@patch.author
+    %tr
+      %th Commit
+      %td
+        %code=@patch.commit
+    %tr
+      %th Received
+      %td
+        =@patch.created_at.nice_format
+        ='&nbsp;<em>('+Time.parse(@patch.created_at.to_s).ago_in_words+')</em>'
+    %tr
+      %th Commited
+      %td
+        =@patch.commited_at.nice_format
+        ='&nbsp;<em>('+Time.parse(@patch.commited_at.to_s).ago_in_words+')</em>'
+    %tr
+      %th Revision
+      %td
+        %span.badge=@patch.patch_set.revision
+    %tr
+      %th Status
+      %td
+        - if @patch.status != :new
+          = format_status @patch.status
+          = '&nbsp;<em>by '+@patch.updated_by+'</em>'
+        - else
+          = format_status :new
+    %tr
+      %th Updated
+      %td
+        =@patch.updated_at.nice_format
+        ='&nbsp;<em>('+Time.parse(@patch.updated_at.to_s).ago_in_words+')</em>'
+    %tr
+      %th Set
+      %td
+        %ul.unstyled
+          - if @patch.other_patches.empty?
+            %li
+              %em No other patches in this set
+          - @patch.other_patches.each do |p|
+            %li
+              %a{ :href => '/patches/%s' % p.commit }
+                %code=p.commit[-8, 8]
+              =p.message
+
+
+%ul.nav.nav-pills.pull-right
+  %li
+    %a{ :href => '#note_frm', :id => 'note_toggle'}
+      %i{ :class => 'icon-plus-sign'}
+      Add
+
+%h3 Notes
+
+%form#note_frm.form-search.well{ :method => 'get', :action => '/patch/%s/note' % @patch.id}
+  %input{ :type => 'text', :class => 'input-medium search-query', :style => 'width : 70%', :name => 'message'}
+  %select.span1{ :name => 'action'}
+    %option{:value => 'note'} -
+    %option{:value => 'ack'} ACK
+    %option{:value => 'nack'} NACK
+    %option{:value => 'push'} PUSH
+  %button{ :type => 'submit', :class => 'btn'} Update
+
+%table.table.table-bordered.patch
+  %tbody
+    - @patch.logs.reverse.each do |log|
+      %tr
+        %th{:style => 'width:130px'}=Time.parse(log.created_at.to_s).ago_in_words
+        %td{:style => 'width:50px;text-align:center'}=format_status "#{log.action}".intern
+        %td{:style => 'width:150px;'}
+          %em=log.author
+        %td=log.message
+    %tr
+      %th=Time.parse(@patch.created_at.to_s).ago_in_words
+      %td{:style => 'text-align:center'}=format_status :new
+      %td
+        %em=@patch.author
+      %td Patch recorded to tracker

@@ -97,14 +97,17 @@ module Tracker
     # * +name+  - Action name (:ack, :nack, :push)
     # * +directory+ - If given, cmd app will 'chdir' into that directory (default: nil)
     #
-    def self.action(name, directory)
+    def self.action(name, directory, options={})
       patches = JSON::parse(patches_to_json(directory))
       messages = patches.pop
       puts
       patches.each do |p|
         begin
           RestClient.post(
-            config[:url] + ('/patches/%s/%s' % [p['hashes']['commit'], name]), '',
+            config[:url] + ('/patches/%s/%s' % [p['hashes']['commit'], name]),
+            {
+              :message => options[:message]
+            },
             {
               :content_type => 'application/json',
               'Authorization' => "Basic #{basic_auth}"
@@ -118,9 +121,9 @@ module Tracker
       "  |\n  |--------> [%s]\n\n" % config[:url]
     end
 
-    def self.ack(directory); action(:ack, directory); end
-    def self.nack(directory); action(:nack, directory); end
-    def self.push(directory); action(:push, directory); end
+    def self.ack(directory, opts={}); action(:ack, directory, opts); end
+    def self.nack(directory, opts={}); action(:nack, directory, opts); end
+    def self.push(directory, opts={}); action(:push, directory, opts); end
 
     def self.status(directory)
       patches = JSON::parse(patches_to_json(directory))

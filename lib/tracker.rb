@@ -27,11 +27,16 @@ module Tracker
       haml :index
     end
 
-    get '/patches' do
+    get '/patches/:id', :provides => :html do
+      @patch = Patch.first(:commit => params[:id], :order => [ :id.desc ])
+      haml :patch
+    end
+
+    get '/patches', :provides => :json do
       PatchSet.active.all(:order => [ :id.desc ]).to_json
     end
 
-    get '/patches/:id' do
+    get '/patches/:id', :provides => :json do
       Patch.status(params[:id]).to_json(:exclude => [:id])
     end
 
@@ -40,12 +45,12 @@ module Tracker
     end
 
     post '/patches/:id/:status' do
-      halt(400, 'Unsupported status') unless ['ack', 'nack', 'push'].include?params[:status]
-      Patch.all(:commit => params[:id]).update(
-        :status => params[:status].intern,
-        :updated_by => credentials[:user]
+      check_valid_status!
+      Patch.first(:commit => params[:id], :order => [ :id.desc]).update_status!(
+        params[:status],
+        credentials[:user],
+        params[:message]
       )
-      status 200
     end
 
     get '/patches/:id/remove' do
@@ -54,8 +59,13 @@ module Tracker
     end
 
     get '/patch/:id/:status' do
-      halt(400, 'Unsupported status') unless ['ack', 'nack', 'push'].include?params[:status]
-      Patch.first(:id => params[:id]).update(:status => params[:status].intern, :updated_by => credentials[:user])
+      params[:status] = params[:action] if !params[:action].nil?
+      check_valid_status!
+      Patch.first(:id => params[:id]).update_status!(
+        params[:action] || params[:status],
+        credentials[:user],
+        params[:message]
+      )
       redirect back
     end
 
