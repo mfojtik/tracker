@@ -29,6 +29,7 @@ module Tracker
       property :status, Enum[ :new, :ack, :nack, :push ], :default => :new
       property :updated_by, String
       property :revision, Integer
+      property :body, Text
 
       property :created_at, DateTime
       property :updated_at, DateTime
@@ -36,6 +37,10 @@ module Tracker
       belongs_to :patch_set
 
       has n, :logs
+
+      def attach!(diff)
+        Patch.first(:id => self.id).update(:body => diff)
+      end
 
       def self.status(commit_id)
         all(:commit => commit_id).select do |p|

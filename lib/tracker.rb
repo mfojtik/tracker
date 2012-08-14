@@ -32,12 +32,18 @@ module Tracker
       haml :patch
     end
 
+    get '/patches/:id/download' do
+      content_type 'text/plain'
+      attachment "#{params[:id]}.patch"
+      [200, {}, Patch.first(:commit => params[:id], :order => [ :id.desc]).body]
+    end
+
     get '/patches', :provides => :json do
       PatchSet.active.all(:order => [ :id.desc ]).to_json
     end
 
     get '/patches/:id', :provides => :json do
-      Patch.status(params[:id]).to_json(:exclude => [:id])
+      Patch.status(params[:id]).to_json(:exclude => [:id, :body])
     end
 
     post '/patches' do
@@ -67,6 +73,11 @@ module Tracker
         params[:message]
       )
       redirect back
+    end
+
+    post '/patch/:commit/attach' do
+      Patch.status(params[:commit]).attach!(request.env["rack.input"].read)
+      status 201
     end
 
     get '/favico.ico' do

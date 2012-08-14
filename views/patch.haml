@@ -1,8 +1,12 @@
 :javascript
   $(function() {
     $("#note_frm").hide();
+    $("#diff").hide();
     $("#note_toggle").click(function() {
       $("#note_frm").toggle();
+    })
+    $("#diff_toggle").click(function() {
+      $("#diff").toggle();
     })
     $(".pushed .collapse").collapse()
   })
@@ -33,6 +37,8 @@
       %th Commit
       %td
         %code=@patch.commit
+        - if !@patch.body.nil?
+          %a{ :href => '#diff', :id => 'diff_toggle'} (show)
     %tr
       %th Received
       %td
@@ -73,6 +79,14 @@
                 %code=p.commit[-8, 8]
               =p.message
 
+#diff
+  - if !@patch.body.nil?
+    %ul.nav.nav-pills.pull-right
+      %li
+        %a{ :href => '/patches/%s/download' % @patch.commit }
+          %i{ :class => 'icon-arrow-down'}
+          Download
+    %pre=@patch.body
 
 %ul.nav.nav-pills.pull-right
   %li

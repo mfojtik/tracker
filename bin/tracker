@@ -14,6 +14,7 @@ opts = Trollop::options do
   opt :config, "Tracker config file location", :short => 'c', :default => "#{File.join(ENV['HOME'], '.trackerrc')}"
   opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
   opt :message, "Add short message to actions", :short => 'm', :type => :string
+  opt :id, "Patchset ID used by download action", :short => 'i', :type => :int
 end
 
 Tracker::Cmd.config(:set, :file => opts[:config])
@@ -26,6 +27,8 @@ def print_usage
   puts 'tracker nack      -   NACK all patches in current branch'
   puts 'tracker push      -   Mark all patches in current branch as PUSHED'
   puts 'tracker status    -   Display review status for current branch'
+  puts 'tracker upload    -   Upload current patches (diffs) to tracker'
+  puts 'tracker download  -   Download whole patchset from tracker'
   puts
   system("#{__FILE__} --help")
   puts
@@ -40,6 +43,8 @@ puts case ARGV[0]
   when 'ack' then Tracker::Cmd.ack(opts[:dir], :message => opts[:message])
   when 'nack' then Tracker::Cmd.nack(opts[:dir], :message => opts[:message])
   when 'push' then Tracker::Cmd.push(opts[:dir], :message => opts[:message])
+  when 'upload' then Tracker::Cmd.upload(opts[:dir])
+  when 'download' then Tracker::Cmd.download(opts[:dir], opts[:id])
   when 'status' then Tracker::Cmd.status(opts[:dir])
   else print_usage
 end

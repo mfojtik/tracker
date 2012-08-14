@@ -79,6 +79,57 @@ module Tracker
       end
     end
 
+    def self.upload(directory)
+      diffs = git_cmd('git format-patch --stdout master', directory)
+      patches = {}
+      current_patch = ''
+      diffs.each_line do |line|
+        if line =~ %r[^From (\w{40}) ]
+          current_patch = $1
+          patches[current_patch] = line
+        else
+          patches[current_patch] += line
+        end
+      end
+      begin
+        patches.each do |commit, body|
+          puts '[^] %s' % commit
+          RestClient.post(
+            config[:url] + ('/patch/%s/attach' % commit),
+            body,
+            {
+              :content_type => 'application/json',
+              'Authorization' => "Basic #{basic_auth}"
+            }
+          )
+        end
+        '%i patches were uploaded to tracker [%s]' % [patches.size, config[:url]]
+      rescue => e
+        e.message
+      end
+    end
+
+    def self.download(directory, patchset_id)
+      patches = JSON::parse(patches_to_json(directory))
+      patches.pop
+      counter = 1
+      patches.map { |p| p['hashes']['commit'] }.each do |commit|
+        diff = RestClient.get(
+          config[:url] + ('/patches/%s/download' % commit),
+          {
+            :content_type => 'application/json',
+            'Authorization' => "Basic #{basic_auth}"
+          }
+        )
+        File.open(File.join(directory, "#{counter}-#{commit}.patch"), 'w') { |f|
+          f.puts diff
+        }
+        puts '[v] %s-%s.patch' % [counter, commit]
+        counter += 1
+      end
+      ''
+    end
+
     def self.obsolete_patchset(patchset_id)
       RestClient.post(
         config[:url] + ('/patchset/%s/obsolete' % patchset_id), '',
