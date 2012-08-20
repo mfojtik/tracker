@@ -8,6 +8,7 @@ gem 'time-ago-in-words'
 gem 'sinatra-partial', :require => 'sinatra/partial'
 gem 'json_pure'
 gem 'dm-serializer'
+gem 'dm-constraints'
 
 group :devel do
   gem 'thin'

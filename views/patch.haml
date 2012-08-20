@@ -16,7 +16,7 @@
   =@patch.message
 
 %p.pull-right
-  - if authorized?
+  - if authorized? and !@patch.obsoleted?
     %a.btn.btn-success{ :href => "/patch/#{@patch.id}/ack"} ACK
     %a.btn.btn-danger{ :href => "/patch/#{@patch.id}/nack"} NACK
     %a.btn{ :href => "/patch/#{@patch.id}/push"} PUSH
@@ -34,14 +34,18 @@
       %th Commit
       %td
         %code=@patch.commit
-    - if !@patch.body.nil?
+    - if !@patch.body.nil? and !@patch.obsoleted?
       %tr
         %th Download
         %td
           %code='$ tracker apply %s' % @patch.commit
     %tr
-      %th Revision
-      %td=@patch.patch_set.revision
+      %th Version
+      %td
+        - if @patch.patch_set.revision == -1
+          N/A
+        - else
+          ="#{@patch.count_same_commit}.#{@patch.patch_set.revision}"
     %tr
       %th Status
       %td
@@ -74,13 +78,13 @@
           Download
     %pre=@patch.body
 
--if authorized?
+-if authorized? and !@patch.obsoleted?
   %ul.nav.nav-pills.pull-right
     %li
       %a{ :href => '#note_frm', :id => 'note_toggle'}
         %i{ :class => 'icon-plus-sign'}
         Add
-    - if !@patch.body.empty?
+    - if !@patch.body.nil?
       %li
         %a{ :href => '#diff', :id => 'diff_toggle'}
           %i{ :class => 'icon-eye-open'}
@@ -99,6 +103,13 @@
 
 %table.table.table-bordered.patch
   %tbody
+    - if @patch.obsoleted?
+      %tr
+        %th=Time.parse(@patch.updated_at.to_s).ago_in_words
+        %td{:style => 'text-align:center'}=format_status :closed
+        %td
+          %em=@patch.author
+        %td This patchset was obsoleted
     - @patch.logs.reverse.each do |log|
       %tr
         %th{:style => 'width:130px'}=Time.parse(log.created_at.to_s).ago_in_words

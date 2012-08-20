@@ -75,7 +75,7 @@ module Tracker
 
     get '/set/:id/destroy' do
       must_authenticate!
-      PatchSet.first(:id => params[:id]).destroy!
+      PatchSet.first(:id => params[:id]).obsolete!
       redirect '/'
     end
 
@@ -93,7 +93,9 @@ module Tracker
 
     put '/patch/:commit/body' do
       must_authenticate!
-      Patch.status(params[:commit]).attach!(request.env["rack.input"].read)
+      patch = Patch.status(params[:commit])
+      throw(:halt, [404, 'Patch %s not found. <a href="/">Back.</a>']) if patch.nil?
+      patch.attach!(request.env["rack.input"].read)
       status 201
     end
 

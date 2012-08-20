@@ -63,7 +63,7 @@ module Tracker
     #
     # * +directory+ - If given, cmd app will 'chdir' into that directory (default: nil)
     #
-    def self.record(directory, obsolete=nil)
+    def self.record(directory, opts={})
       number_of_commits = JSON::parse(patches_to_json(directory)).pop.size
       begin
         response = RestClient.post(
@@ -72,12 +72,14 @@ module Tracker
           {
             :content_type => 'application/json',
             'Authorization' => "Basic #{basic_auth}",
-            'X-Obsoletes' => obsolete || 'no'
+            'X-Obsoletes' => opts[:obsolete] || 'no'
           }
         )
         response = JSON::parse(response)
-        "#{number_of_commits} patches were recorded to the tracker server"+
+        output = "#{number_of_commits} patches were recorded to the tracker server"+
           " [#{config[:url]}][##{response['id']}][rev#{response['revision']}]"
+        output += "\n" + upload(directory) if opts[:upload]
+        output
       rescue => e
         e.message
       end

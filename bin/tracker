@@ -15,6 +15,7 @@ opts = Trollop::options do
   opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
   opt :message, "Add short message to actions", :short => 'm', :type => :string
   opt :id, "Patchset ID used by download action", :short => 'i', :type => :int
+  opt :upload, 'Upload current branch patches after record', :short => 'u', :type => :flag
 end
 
 Tracker::Cmd.config(:set, :file => opts[:config])
@@ -40,7 +41,7 @@ def print_usage
 end
 
 puts case ARGV[0]
-  when 'record' then Tracker::Cmd.record(opts[:dir], opts[:obsolete])
+  when 'record' then Tracker::Cmd.record(opts[:dir], { :obsolete => opts[:obsolete], :upload => opts[:upload]})
   when 'ack' then Tracker::Cmd.ack(opts[:dir], :message => opts[:message])
   when 'nack' then Tracker::Cmd.nack(opts[:dir], :message => opts[:message])
   when 'push' then Tracker::Cmd.push(opts[:dir], :message => opts[:message])

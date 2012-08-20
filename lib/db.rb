@@ -36,19 +36,24 @@ module Tracker
 
       belongs_to :patch_set
 
-      has n, :logs
+      has n, :logs, :constraint => :destroy
+
+      def count_same_commit
+        Patch.all(:commit => commit).count - 1
+      end
 
       def attach!(diff)
         Patch.first(:id => self.id).update(:body => diff)
       end
 
       def self.status(commit_id)
-        all(:commit => commit_id).select do |p|
+        all(:commit => commit_id, :order => [ :created_at.desc ]).select do |p|
           !p.obsoleted?
         end.map { |p| (p.revision = p.patch_set.revision) && p }.first
       end
 
       def obsoleted?
+        return true if patch_set.nil?
         patch_set.revision <= 0
       end
 
@@ -86,7 +91,7 @@ module Tracker
       property :revision, Integer, :default => 1
       property :created_at, DateTime
 
-      has n, :patches
+      has n, :patches, :constraint => :destroy
 
       attr_accessor :patches_ids
 
