@@ -1,0 +1,38 @@
+%h2
+  %a{:href => '/'}="##{@set.id}"
+  =": #{@set.patches.first.message}"
+  - if @set.patches.count > 1
+    %small
+      %em="... and #{@set.patches.count - 1} more"
+
+- if authorized?
+  %p.pull-right
+    %a{ :class => 'btn btn-danger', :href => '/set/%s/destroy' % @set.id} Remove
+
+%br
+
+%table.table.table-bordered
+  %tr
+    %th.well.t-label Author
+    %td=@set.author
+  %tr
+    %th.well.t-label Revision
+    %td=@set.revision
+  %tr
+    %th.well.t-label Recorded
+    %td=Time.parse(@set.created_at.to_s).ago_in_words
+
+%h3 Patches in this set:
+
+%br
+
+%table.table.table-bordered
+  - @set.patches.all(:order => [ :created_at.desc ]).each do |p|
+    %tr
+      %td.t-label
+        %a{ :href => '/patch/%s' % p.commit }
+          %code=p.commit[-8, 8]
+      %td.t-label=format_status p.status
+      %td=p.message
+      %td.t-label
+        %small=p.updated_by

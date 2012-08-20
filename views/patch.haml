@@ -11,22 +11,19 @@
     $(".pushed .collapse").collapse()
   })
 
-%h3
-  %a{ :href => '/' }="##{@patch.patch_set.id}: "
+%h2
+  %a{ :href => '/set/%s' % @patch.patch_set.id }="##{@patch.patch_set.id} : "
   =@patch.message
 
-%ul.nav.nav-pills.pull-right
-  %li.dropdown{ :style => 'text-align : center;'}
-    %a{ :href => '#', :class => 'dropdown-toggle', 'data-toggle' => 'dropdown'}
-      %i{ :class => 'icon-cog'}
-      %b Quick Action
-    %ul{:class => 'dropdown-menu'}
-      %li
-        %a{ :href => "/patch/#{@patch.id}/ack"} ACK
-      %li
-        %a{ :href => "/patch/#{@patch.id}/nack"} NACK
-      %li
-        %a{ :href => "/patch/#{@patch.id}/push"} PUSH
+%p.pull-right
+  - if authorized?
+    %a.btn.btn-success{ :href => "/patch/#{@patch.id}/ack"} ACK
+    %a.btn.btn-danger{ :href => "/patch/#{@patch.id}/nack"} NACK
+    %a.btn{ :href => "/patch/#{@patch.id}/push"} PUSH
+  - if !@patch.body.nil?
+    %a.btn{ :href => '/patch/%s/download' % @patch.commit }
+      %i{ :class => 'icon-arrow-down'}
+      Download
 
 %table.table.table-bordered.patch
   %tbody
@@ -45,11 +42,6 @@
         =@patch.created_at.nice_format
         ='&nbsp;<em>('+Time.parse(@patch.created_at.to_s).ago_in_words+')</em>'
     %tr
-      %th Commited
-      %td
-        =@patch.commited_at.nice_format
-        ='&nbsp;<em>('+Time.parse(@patch.commited_at.to_s).ago_in_words+')</em>'
-    %tr
       %th Revision
       %td
         %span.badge=@patch.patch_set.revision
@@ -59,13 +51,10 @@
         - if @patch.status != :new
           = format_status @patch.status
           = '&nbsp;<em>by '+@patch.updated_by+'</em>'
+          = '&nbsp;('+ @patch.updated_at.nice_format
+          = '&nbsp;<em>('+Time.parse(@patch.updated_at.to_s).ago_in_words+')</em>)'
         - else
           = format_status :new
-    %tr
-      %th Updated
-      %td
-        =@patch.updated_at.nice_format
-        ='&nbsp;<em>('+Time.parse(@patch.updated_at.to_s).ago_in_words+')</em>'
     %tr
       %th Set
       %td
@@ -75,7 +64,7 @@
               %em No other patches in this set
           - @patch.other_patches.each do |p|
             %li
-              %a{ :href => '/patches/%s' % p.commit }
+              %a{ :href => '/patch/%s' % p.commit }
                 %code=p.commit[-8, 8]
               =p.message
 
@@ -83,27 +72,28 @@
   - if !@patch.body.nil?
     %ul.nav.nav-pills.pull-right
       %li
-        %a{ :href => '/patches/%s/download' % @patch.commit }
+        %a{ :href => '/set/%s/download' % @patch.commit }
           %i{ :class => 'icon-arrow-down'}
           Download
     %pre=@patch.body
 
-%ul.nav.nav-pills.pull-right
-  %li
-    %a{ :href => '#note_frm', :id => 'note_toggle'}
-      %i{ :class => 'icon-plus-sign'}
-      Add
+-if authorized?
+  %ul.nav.nav-pills.pull-right
+    %li
+      %a{ :href => '#note_frm', :id => 'note_toggle'}
+        %i{ :class => 'icon-plus-sign'}
+        Add
 
-%h3 Notes
+  %h3 Review notes
 
-%form#note_frm.form-search.well{ :method => 'get', :action => '/patch/%s/note' % @patch.id}
-  %input{ :type => 'text', :class => 'input-medium search-query', :style => 'width : 70%', :name => 'message'}
-  %select.span1{ :name => 'action'}
-    %option{:value => 'note'} -
-    %option{:value => 'ack'} ACK
-    %option{:value => 'nack'} NACK
-    %option{:value => 'push'} PUSH
-  %button{ :type => 'submit', :class => 'btn'} Update
+  %form#note_frm.form-search.well{ :method => 'get', :action => '/patch/%s/note' % @patch.id}
+    %input{ :type => 'text', :class => 'input-medium search-query', :style => 'width : 70%', :name => 'message'}
+    %select.span1{ :name => 'action'}
+      %option{:value => 'note'} -
+      %option{:value => 'ack'} ACK
+      %option{:value => 'nack'} NACK
+      %option{:value => 'push'} PUSH
+    %button{ :type => 'submit', :class => 'btn'} Update
 
 %table.table.table-bordered.patch
   %tbody

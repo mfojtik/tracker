@@ -18,6 +18,12 @@ module Tracker
         end
       end
 
+      def format_set_status(set)
+        return 'pushed' if set.pushed?
+        return 'acked'  if set.acked?
+        return 'nacked' if set.nacked?
+      end
+
       def format_patch_numbers(patches)
         result = '%d patches' % patches.size
         if patches.all(:status => :push).size == patches.size
@@ -53,8 +59,7 @@ module Tracker
       def must_authenticate!
         @auth ||=  Rack::Auth::Basic::Request.new(request.env)
         if @auth.provided? && @auth.basic? && @auth.credentials
-          not_authorized! unless Authentication.users.has_key? credentials[:user]
-          not_authorized! unless Authentication.users[credentials[:user]] == credentials[:password]
+          not_authorized! if !authorized?
           return
         end
         not_authorized!
@@ -62,10 +67,17 @@ module Tracker
 
       def credentials
         @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+        return {} if !@auth.provided?
         {
           :user => @auth.credentials[0],
           :password => @auth.credentials[1]
         }
+      end
+
+      def authorized?
+        return false unless Authentication.users.has_key? credentials[:user]
+        return false unless Authentication.users[credentials[:user]] == credentials[:password]
+        true
       end
 
     end

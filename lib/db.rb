@@ -88,8 +88,20 @@ module Tracker
 
       has n, :patches
 
-      def pushed?
-        patches.all(:status => :push).size == patches.size
+      attr_accessor :patches_ids
+
+      def with_commits
+        @patches_ids ||= self.patches.map { |p| p.commit }
+        self
+      end
+
+      def acked?; all_status?(:ack); end
+      def nacked?; all_status?(:nack); end
+      def pushed?; all_status?(:push); end
+
+      def all_status?(status)
+        puts "#{status}: #{patches.all(:status => status).size} : #{patches.all.count}"
+        patches.all(:status => status).size == patches.all.count
       end
 
       def self.active

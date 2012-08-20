@@ -18,3 +18,57 @@ table.patches {
 table.patches td {
   vertical-align : middle;
 }
+
+td.set p.info,
+td.set p.updated {
+  margin : 1em 0 0 0;
+}
+
+td.set p.updated {
+  text-align : right;
+  margin-left : 1em;
+  padding : 5px;
+}
+
+td.set p.info {
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  background: #EEE;
+  border-radius: 3px;
+  font-size : 90%;
+  padding : 5px;
+}
+
+.set div {
+  position: relative;
+  padding-left : 1em;
+}
+
+span.status {
+  position: absolute;
+  display: block;
+  top: 4px;
+  left: 0;
+  width: 4px;
+  height: 52px;
+  background: #84b6eb;
+}
+
+span.acked {
+  background : #6CC644;
+}
+
+span.nacked {
+  background : #C52323;
+}
+
+span.pushed {
+  background: #e6e6e6;
+}
+
+.t-label {
+  width : 100px;
+}
+
+td.t-label {
+  text-align : center;
+}

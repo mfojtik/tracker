@@ -1,53 +1,25 @@
-:javascript
-  $(function() {
-    $(".pushed .collapse").collapse()
-  })
+%h2 #{@sets.count} open requests
 
-#patches.accordion
+%p.pull-right
+  - if !authorized?
+    %a.btn.btn-info{ :href => '/login'} Login
+
+%br
+
+%table.table.table-bordered
   - @sets.each do |set|
-    .accordion-group
-      %div{ :class => "accordion-heading #{set.pushed? ? 'pushed' : ''}"}
-        %span{ :style => 'float:right;margin:5px'}
-          %strong="#{format_patch_numbers(set.patches)}"
-          %em="[rev#{set.revision}]"
-        %a{:class => 'accordion-toggle', :'data-toggle' => 'collapse', :'data-parent' => :patches, :href => "#set#{set.id}"}
-          %h3{ :style => 'color:#000;font-size:120%;'}="##{set.id} #{set.author}"
-          %b{ :style => 'float:left;'}=Time.parse(set.created_at.to_s).ago_in_words
-        %hr
-      %div{:id => "set#{set.id}", :class => "accordion-body in collapse", :style => "height: auto; clear:both;"}
-        .accordion-inner
-          %table{ :class => 'table table-striped table-bordered patches'}
-            %thead
-              %tr
-                %th{ :width => '80px'}  Commit
-                %th Description
-                %th{ :width => '50px'} Status
-                %th{ :width => '150px', :style => 'text-align: center'} Modified by
-                %th{ :width => '120px', :style => 'text-align : center'}
-                  %a{ :href => "/patches/#{set.id}/remove", :class => 'btn btn-danger' }
-                    %i{ :class => 'icon-remove'}
-                    Remove all
-            %tbody
-              - set.patches.each do |p|
-                %tr
-                  %td{:style => 'text-align: center'}
-                    %a{ :href => '/patches/%s' % p.commit }
-                      %code=p.commit[-8, 8]
-                  %td=p.message
-                  %td{:style => 'text-align: center'}
-                    =format_status p.status
-                  %td{:style => 'text-align : center'}
-                    =p.updated_by || '-'
-                  %td.actions
-                    %ul.nav
-                      %li.dropdown{ :style => 'text-align : center;'}
-                        %a{ :href => '#', :class => 'btn dropdown-toggle', 'data-toggle' => 'dropdown'}
-                          %i{ :class => 'icon-cog'}
-                          %b Change
-                        %ul{:class => 'dropdown-menu'}
-                          %li
-                            %a{ :href => "/patch/#{p.id}/ack"} ACK
-                          %li
-                            %a{ :href => "/patch/#{p.id}/nack"} NACK
-                          %li
-                            %a{ :href => "/patch/#{p.id}/push"} PUSH
+    %tr
+      %td{ :id => 'set%s' % set.id, :class => :set }
+        %div
+          %span{ :class => 'status %s' % (format_set_status(set))}
+          %h4
+            ="##{set.id}"
+            %a{ :href => '/set/%s' % set.id}=set.patches.first.message[0..50]
+          %p.info.pull-left
+            %b=set.author
+            recorded this set
+            %em=Time.parse(set.created_at.to_s).ago_in_words
+          - if !set.patches.empty?
+            %p.updated.pull-left
+              %small Updated #{Time.parse(set.patches.max(:updated_at).to_s).ago_in_words}
+

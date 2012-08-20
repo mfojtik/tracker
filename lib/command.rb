@@ -5,7 +5,10 @@ module Tracker
     require 'json'
     require 'base64'
 
-    GIT_JSON_FORMAT = '{ "hashes":{ "commit":"%H", "tree":"%T", "parents":"%P" }, "author":{ "date": "%ai", "name": "%an", "email":"%ae" }, "committer":{ "date": "%ci", "name": "%cn", "email":"%ce" } },'
+    GIT_JSON_FORMAT = '{ "hashes":'+
+      '{ "commit":"%H", "tree":"%T",'+' "parents":"%P" },'+
+      '"author":{ "date": "%ai", "name": "%an", "email":"%ae" },'+
+      '"committer":{ "date": "%ci", "name": "%cn", "email":"%ce" } },'
 
     GIT_OPTS = "--format='#{GIT_JSON_FORMAT}'"
 
@@ -64,7 +67,7 @@ module Tracker
       number_of_commits = JSON::parse(patches_to_json(directory)).pop.size
       begin
         response = RestClient.post(
-          config[:url] + '/patches',
+          config[:url] + '/set',
           patches_to_json(directory),
           {
             :content_type => 'application/json',
@@ -73,7 +76,8 @@ module Tracker
           }
         )
         response = JSON::parse(response)
-        "#{number_of_commits} patches were recorded to the tracker server [#{config[:url]}][##{response['id']}][rev#{response['revision']}]"
+        "#{number_of_commits} patches were recorded to the tracker server"+
+          " [#{config[:url]}][##{response['id']}][rev#{response['revision']}]"
       rescue => e
         e.message
       end
@@ -82,26 +86,19 @@ module Tracker
     def self.upload(directory)
       diffs = git_cmd('git format-patch --stdout master', directory)
       patches = {}
-      current_patch = ''
+      current_patch_commit = ''
       diffs.each_line do |line|
         if line =~ %r[^From (\w{40}) ]
-          current_patch = $1
-          patches[current_patch] = line
+          current_patch_commit = $1
+          patches[current_patch_commit] = line
         else
-          patches[current_patch] += line
+          patches[current_patch_commit] += line
         end
       end
       begin
         patches.each do |commit, body|
           puts '[^] %s' % commit
-          RestClient.post(
-            config[:url] + ('/patch/%s/attach' % commit),
-            body,
-            {
-              :content_type => 'application/json',
-              'Authorization' => "Basic #{basic_auth}"
-            }
-          )
+          upload_patch_body(commit, body)
         end
         '%i patches were uploaded to tracker [%s]' % [patches.size, config[:url]]
       rescue => e
@@ -109,24 +106,52 @@ module Tracker
       end
     end
 
+    def self.upload_patch_body(commit_id, body)
+      RestClient.put(
+        config[:url] + ('/patch/%s/body' % commit_id),
+        body,
+        {
+          :content_type => 'application/json',
+          'Authorization' => "Basic #{basic_auth}"
+        }
+      )
+    end
+
+    def self.download_patch_body(commit_id)
+      RestClient.get(
+        config[:url] + ('/patch/%s/download' % commit_id),
+        {
+          :content_type => 'application/json',
+          'Authorization' => "Basic #{basic_auth}"
+        }
+      )
+    end
+
     def self.download(directory, patchset_id)
-      patches = JSON::parse(patches_to_json(directory))
-      patches.pop
-      counter = 1
-      patches.map { |p| p['hashes']['commit'] }.each do |commit|
-        diff = RestClient.get(
-          config[:url] + ('/patches/%s/download' % commit),
+      patches = []
+      begin
+        response = RestClient.get(
+          config[:url] + ('/set/%s' % patchset_id),
           {
-            :content_type => 'application/json',
+            'Accept' => 'application/json',
             'Authorization' => "Basic #{basic_auth}"
           }
         )
+        patches = JSON::parse(response)['patches'].map { |p| p['commit'] }
+      rescue => e
+        puts "ERR: #{e.message}"
+        exit
+      end
+      counter = 0
+      puts
+      patches.each do |commit|
         File.open(File.join(directory, "#{counter}-#{commit}.patch"), 'w') { |f|
-          f.puts diff
+          f.puts download_patch_body(commit)
         }
         puts '[v] %s-%s.patch' % [counter, commit]
         counter += 1
       end
+      puts "\n -> #{counter} patches downloaded."
       ''
     end
 
@@ -155,7 +180,7 @@ module Tracker
       patches.each do |p|
         begin
           RestClient.post(
-            config[:url] + ('/patches/%s/%s' % [p['hashes']['commit'], name]),
+            config[:url] + ('/patch/%s/%s' % [p['hashes']['commit'], name]),
             {
               :message => options[:message]
             },
@@ -185,14 +210,19 @@ module Tracker
       patches.each do |p|
         begin
           response = RestClient.get(
-            config[:url] + ('/patches/%s' % p['hashes']['commit']),
+            config[:url] + ('/patch/%s' % p['hashes']['commit']),
             {
-              :content_type => 'application/json',
+              'Accept' => 'application/json',
               'Authorization' => "Basic #{basic_auth}"
             }
           )
           response = JSON::parse(response)
-          puts '[%s][%s][rev%s] %s' % [response['commit'][-8, 8], response['status'].upcase, response['revision'], response['message']]
+          puts '[%s][%s][rev%s] %s' % [
+            response['commit'][-8, 8],
+            response['status'].upcase,
+            response['revision'],
+            response['message']
+          ]
           counter+=1
         rescue => e
           next if response == 'null'
