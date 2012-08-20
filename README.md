@@ -22,13 +22,19 @@ working directory is used instead</em>:
 
 * <code>$ tracker record [-d PATH_TO_YOUR_GIT_REPO]</code>
 
-Then you may refresh the blank web page and you should see something like this:
+Then you may refresh the blank web page and you should see something like this
+in the timeline:
 
 ![img1](http://omicron.mifo.sk/tracker_1.png)
+
+And you may view details about the patchset you sent here:
+
+![img1](http://omicron.mifo.sk/tracker_3.png)
 
 Good. You have just recorded your patches, so now you don't loose track of them.
 Go ahead, send your patches to the mailing list, and find someone who will review your patches.
 
+<em>
 Also you can use the shell script <code>git-tracker-send</code> that will
 record the patches and call 'git send-email' command.
 
@@ -37,6 +43,7 @@ and tracker client will upload your patches into tracker application. The users
 can the download and apply your patches by simply typing:
 
 <code>$ tracker apply COMMIT_HASH</code>
+</em>
 
 If the person is happy about what you did, and wants to give you an ACK, then he can do it by:
 
