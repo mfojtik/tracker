@@ -20,7 +20,7 @@ should have a designated branch with your work checked out (it should be the cur
 Now you can record the patches (<em>the -d part is optional, when omitted, current
 working directory is used instead</em>:
 
-* <code>$ tracker record -d PATH_TO_YOUR_GIT_REPO</code>
+* <code>$ tracker record [-d PATH_TO_YOUR_GIT_REPO]</code>
 
 Then you may refresh the blank web page and you should see something like this:
 
@@ -29,9 +29,18 @@ Then you may refresh the blank web page and you should see something like this:
 Good. You have just recorded your patches, so now you don't loose track of them.
 Go ahead, send your patches to the mailing list, and find someone who will review your patches.
 
+Also you can use the shell script <code>git-tracker-send</code> that will
+record the patches and call 'git send-email' command.
+
+In addition to recording your patches, you can use <code>-u</code> option
+and tracker client will upload your patches into tracker application. The users
+can the download and apply your patches by simply typing:
+
+<code>$ tracker apply COMMIT_HASH</code>
+
 If the person is happy about what you did, and wants to give you an ACK, then he can do it by:
 
-* <code>$ tracker ack -d PATH_TO_REVIEWER_GIT_REPO</code>
+* <code>$ tracker ack [-d PATH_TO_REVIEWER_GIT_REPO]</code>
 
 NOTE: He must have the branch with applied patches set as 'current', so tracker can
 read the history and get the patch hashes.
@@ -44,7 +53,7 @@ Now if you refresh the web page, you will see that all patches are marked by
 That means, they are good to go. Lets push them. Before push, you may indicate,
 that you're going to push them:
 
-* <code>$ tracker push -d PATH_TO_YOUR_REPO</code>
+* <code>$ tracker push [-d PATH_TO_YOUR_REPO]</code>
 
 The patches will get the 'PUSH' stamp and tracker job is done here. You may push
 your patches to remote GIT repository now :-)
@@ -88,6 +97,32 @@ they don't get lost in list after a while.
 * <b>Q: Will Tracker watch my mailing list</b>
 
 No.
+
+
+API structure
+--------------
+
+* <code>GET /set</code> [JSON, HTML] - Return all 'sets' (patch sets) that are recorded.
+
+* <code>GET /set/:id</code> [JSON, HTML] - Return the 'set' (patch set) identified by :id.
+
+* <code>POST /set</code> [JSON] - Create new patchset. The request body contain
+  JSON serialization of the patchset.
+
+* <code>GET /set/:id/destroy</code> - Destroy given patchset. (The revision is
+  changed to -1)
+
+* <code>GET /patch/:id</code> [JSON, HTML] - Get details about the patch. The :id is
+  the patch commit hash.
+
+* <code>GET /patch/:id/download</code> - Get content (diff) of the patch if
+  uploaded. The :id is the patch commit hash.
+
+* <code>PUT /patch/:id/body</code> - Attach the patch body (diff) to this patch.
+  The request body should contain the raw diff (git format-patch output)
+
+* <code>POST /patch/:id/status</code> - Update status of the patch identified by
+  :id. The 'status' parameter indicated the target status (ack, nack, push, note).
 
 
 Designed workflow:
