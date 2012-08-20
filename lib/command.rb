@@ -83,6 +83,18 @@ module Tracker
       end
     end
 
+    def self.apply(directory, commit_id)
+      unless commit_id =~ /(\w{40})/
+        puts 'You must provide GIT commit hash (40 characters).'
+        exit 1
+      end
+      patch_body = download_patch_body(commit_id)
+      File.open(File.join(directory, "#{commit_id}.patch"), 'w') { |f| f.puts patch_body }
+      print 'Are you sure you want to apply patch to current branch? [Y/n]'
+      exit if (STDIN.gets.chomp) == 'n'
+      git_cmd("git am #{commit_id}.patch", directory)
+    end
+
     def self.upload(directory)
       diffs = git_cmd('git format-patch --stdout master', directory)
       patches = {}
@@ -118,13 +130,17 @@ module Tracker
     end
 
     def self.download_patch_body(commit_id)
-      RestClient.get(
-        config[:url] + ('/patch/%s/download' % commit_id),
-        {
-          :content_type => 'application/json',
-          'Authorization' => "Basic #{basic_auth}"
-        }
-      )
+      begin
+        RestClient.get(
+          config[:url] + ('/patch/%s/download' % commit_id),
+          {
+            :content_type => 'text/plain',
+            'Authorization' => "Basic #{basic_auth}"
+          }
+        )
+      rescue => e
+        puts "[ERR] #{e.message}"
+      end
     end
 
     def self.download(directory, patchset_id)

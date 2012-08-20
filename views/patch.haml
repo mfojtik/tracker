@@ -34,17 +34,14 @@
       %th Commit
       %td
         %code=@patch.commit
-        - if !@patch.body.nil?
-          %a{ :href => '#diff', :id => 'diff_toggle'} (show)
-    %tr
-      %th Received
-      %td
-        =@patch.created_at.nice_format
-        ='&nbsp;<em>('+Time.parse(@patch.created_at.to_s).ago_in_words+')</em>'
+    - if !@patch.body.nil?
+      %tr
+        %th Download
+        %td
+          %code='$ tracker apply %s' % @patch.commit
     %tr
       %th Revision
-      %td
-        %span.badge=@patch.patch_set.revision
+      %td=@patch.patch_set.revision
     %tr
       %th Status
       %td
@@ -56,9 +53,9 @@
         - else
           = format_status :new
     %tr
-      %th Set
+      %th{ :style => 'vertical-align: middle'} Other in Set
       %td
-        %ul.unstyled
+        %ul.unstyled{:style => 'margin-bottom : 0'}
           - if @patch.other_patches.empty?
             %li
               %em No other patches in this set
@@ -83,6 +80,11 @@
       %a{ :href => '#note_frm', :id => 'note_toggle'}
         %i{ :class => 'icon-plus-sign'}
         Add
+    - if !@patch.body.empty?
+      %li
+        %a{ :href => '#diff', :id => 'diff_toggle'}
+          %i{ :class => 'icon-eye-open'}
+          View
 
   %h3 Review notes
 

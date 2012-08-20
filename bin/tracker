@@ -28,7 +28,8 @@ def print_usage
   puts 'tracker push      -   Mark all patches in current branch as PUSHED'
   puts 'tracker status    -   Display review status for current branch'
   puts 'tracker upload    -   Upload current patches (diffs) to tracker'
-  puts 'tracker download  -   Download whole patchset from tracker'
+  puts 'tracker download  -   Download whole patchset from tracker (-i PATCHSET_ID)'
+  puts 'tracker apply     -   Apply patch with specified commit (-i COMMIT_ID)'
   puts
   system("#{__FILE__} --help")
   puts
@@ -46,5 +47,6 @@ puts case ARGV[0]
   when 'upload' then Tracker::Cmd.upload(opts[:dir])
   when 'download' then Tracker::Cmd.download(opts[:dir], opts[:id])
   when 'status' then Tracker::Cmd.status(opts[:dir])
+  when 'apply' then Tracker::Cmd.apply(opts[:dir], ARGV[1])
   else print_usage
 end

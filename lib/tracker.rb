@@ -30,7 +30,7 @@ module Tracker
 
     get '/patch/:id', :provides => :html do
       @patch = Patch.first(:commit => params[:id], :order => [ :id.desc ])
-      throw(404, 'Patch %s not found. <a href="/">Back.</a>') if @patch.nil?
+      throw(:halt, [404, 'Patch %s not found. <a href="/">Back.</a>']) if @patch.nil?
       haml :patch
     end
 
@@ -50,7 +50,7 @@ module Tracker
 
     get '/set/:id', :provides => :html do
       @set = PatchSet.active.first(:id => params[:id])
-      throw(404, 'Set %s not found. <a href="/">Back.</a>') if @set.nil?
+      throw(:halt, [404, 'Set %s not found. <a href="/">Back.</a>']) if @set.nil?
       haml :set
     end
 
