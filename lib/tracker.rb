@@ -23,11 +23,6 @@ module Tracker
       redirect '/'
     end
 
-    get '/logout' do
-      headers 'WWW-Authenticate' => 'Basic realm="protected area"'
-      redirect back
-    end
-
     get '/' do
       @sets = PatchSet.active.all(:order => [ :id.desc ])
       haml :index
@@ -35,6 +30,7 @@ module Tracker
 
     get '/patch/:id', :provides => :html do
       @patch = Patch.first(:commit => params[:id], :order => [ :id.desc ])
+      throw(404, 'Patch %s not found. <a href="/">Back.</a>') if @patch.nil?
       haml :patch
     end
 
@@ -54,6 +50,7 @@ module Tracker
 
     get '/set/:id', :provides => :html do
       @set = PatchSet.active.first(:id => params[:id])
+      throw(404, 'Set %s not found. <a href="/">Back.</a>') if @set.nil?
       haml :set
     end
 
@@ -79,7 +76,7 @@ module Tracker
     get '/set/:id/destroy' do
       must_authenticate!
       PatchSet.first(:id => params[:id]).destroy!
-      redirect back
+      redirect '/'
     end
 
     get '/patch/:id/:status' do
