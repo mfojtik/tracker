@@ -7,6 +7,39 @@ end
 module Tracker
   module Helpers
 
+    module Notification
+
+      def n(subject, message)
+        Tracker.notify("[TRACKER] #{subject}:#{erb(:notification, :locals => { :message => message})}")
+      end
+
+      def send_notification(type, app, obj)
+        case type
+          when :create_set then send_create_set_notification(app, obj)
+          when :update_status then send_update_status(app, obj)
+        end
+      end
+
+      def send_create_set_notification(app, obj)
+        template = "The set #%i was successfully registered at http://%s/set/%i.\n"
+        template += "\nPatches:\n\n"
+        obj.patches.each do |p|
+          template += "* [#{p.commit[-8, 8]}] #{p.message}\n"
+          template += "   http://#{app.request.host}/patch/#{p.commit}\n\n"
+        end
+        template = template % [obj.id, app.request.host, obj.id]
+        n "#{obj.patches.count} patches recorded by #{obj.author}", template
+      end
+
+      def send_update_status(app, obj)
+        template = "The patch #{obj.commit[-8,8]} state changed to #{obj.status.to_s.upcase} "
+        template += "by #{obj.updated_by}.\n"
+        template += "\n\n* [#{obj.commit[-8,8]}] #{obj.message}\n"
+        template += "    by #{obj.author}"
+      end
+
+    end
+
     module Application
 
       def format_status(value)

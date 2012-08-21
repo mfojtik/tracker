@@ -6,6 +6,7 @@ module Tracker
 
     helpers Tracker::Helpers::Authentication
     helpers Tracker::Helpers::Application
+    helpers Tracker::Helpers::Notification
 
     use Rack::CommonLogger
 
@@ -60,17 +61,18 @@ module Tracker
 
     post '/set' do
       must_authenticate!
-      PatchSet.create_from_json(credentials[:user], request.env["rack.input"].read, env['HTTP_X_OBSOLETES']).to_json
+      set = PatchSet.create_from_json(credentials[:user], request.env["rack.input"].read, env['HTTP_X_OBSOLETES'])
+      send_notification(:create_set, self, set)
+      set.to_json
     end
 
     post '/patch/:id/:status' do
       must_authenticate!
       check_valid_status!
-      Patch.first(:commit => params[:id], :order => [ :id.desc]).update_status!(
-        params[:status],
-        credentials[:user],
-        params[:message]
-      )
+      patch = Patch.first(:commit => params[:id], :order => [ :id.desc])
+      result = patch.update_status!(params[:status], credentials[:user], params[:message])
+      send_notification :update_status, self, patch.reload
+      result
     end
 
     get '/set/:id/destroy' do

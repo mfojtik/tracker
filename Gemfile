@@ -9,6 +9,7 @@ gem 'sinatra-partial', :require => 'sinatra/partial'
 gem 'json_pure'
 gem 'dm-serializer'
 gem 'dm-constraints'
+gem 'pony'
 
 group :devel do
   gem 'thin'
