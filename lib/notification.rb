@@ -35,21 +35,17 @@ module Tracker
 
     def email(message)
       subject, body = message.split(':', 2)
-      puts subject
-      puts body
-      Thread.new {
-        begin
-          Pony.mail(
-            :to => recipients,
-            :via => :smtp,
-            :via_options => options,
-            :subject => subject,
-            :body => body
-          )
-        rescue => e
-          puts "Failed to deliver notifications: #{e.message}"
-        end
-      }
+      begin
+        Pony.mail(
+          :to => recipients,
+          :via => :smtp,
+          :via_options => options,
+          :subject => subject,
+          :body => body
+        )
+      rescue => e
+        puts "Failed to deliver notifications: #{e.message}"
+      end
     end
 
     def options

@@ -35,7 +35,13 @@ module Tracker
         template = "The patch #{obj.commit[-8,8]} state changed to #{obj.status.to_s.upcase} "
         template += "by #{obj.updated_by}.\n"
         template += "\n\n* [#{obj.commit[-8,8]}] #{obj.message}\n"
-        template += "    by #{obj.author}"
+        template += "    by #{obj.author}\n\n"
+        template += "Notes:\n"
+        template += obj.logs.last.message
+        template += "\n\n"
+        template += "View patch: http://#{app.request.host}/patch/#{obj.commit}\n"
+        template += "Download patch: http://#{app.request.host}/patch/#{obj.commit}/download\n"
+        n "Patch #{obj.commit[-8,8]} status changed to #{obj.status.to_s.upcase}", template
       end
 
     end
