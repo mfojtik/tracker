@@ -1,6 +1,6 @@
 %h2
   %a{:href => '/'}="##{@set.id}"
-  =": #{@set.patches.first.message}"
+  =": #{@set.patches.last.message}"
   - if @set.patches.count > 1
     %small
       %em="... and #{@set.patches.count - 1} more"

@@ -39,13 +39,14 @@ module Tracker
       end
 
       def attach!(diff)
-        Patch.first(:id => self.id).update(:body => diff)
+        update(:body => diff)
+        save
       end
 
-      def self.status(commit_id)
+      def self.active(commit_id)
         all(:commit => commit_id, :order => [ :created_at.desc ]).select do |p|
           !p.obsoleted?
-        end.map { |p| (p.revision = p.patch_set.revision) && p }.first
+        end.first
       end
 
       def obsoleted?

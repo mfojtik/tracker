@@ -38,7 +38,7 @@ module Tracker
     end
 
     get '/patch/:id', :provides => :json do
-      Patch.status(params[:id]).to_json(:exclude => [:id, :body])
+      Patch.active(params[:id]).to_json(:exclude => [:id, :body])
     end
 
     get '/patch/:id/download' do
@@ -58,7 +58,11 @@ module Tracker
     end
 
     get '/set/:id', :provides => :json do
-      PatchSet.first(params[:id]).to_json(:methods => [:patches])
+      set = PatchSet.first(:id => params[:id])
+      {
+        :id => set.id,
+        :patches => set.patches.all(:order => [ :id.desc ]).map { |p| p.commit }
+      }.to_json
     end
 
     post '/set' do
@@ -66,6 +70,14 @@ module Tracker
       set = PatchSet.create_from_json(credentials[:user], request.env["rack.input"].read, env['HTTP_X_OBSOLETES'])
       send_notification(:create_set, self, set)
       set.to_json
+    end
+
+    post '/patch/:commit/body' do
+      must_authenticate!
+      patch = Patch.active(params[:commit])
+      throw(:halt, [404, 'Patch %s not found. <a href="/">Back.</a>']) if patch.nil?
+      patch.attach!(params['diff'][:tempfile].read)
+      status 201
     end
 
     post '/patch/:id/:status' do
@@ -91,14 +103,6 @@ module Tracker
       patch.update_status!(params[:action] || params[:status], credentials[:user], params[:message])
       send_notification :update_status, self, patch.reload
       redirect back
-    end
-
-    put '/patch/:commit/body' do
-      must_authenticate!
-      patch = Patch.status(params[:commit])
-      throw(:halt, [404, 'Patch %s not found. <a href="/">Back.</a>']) if patch.nil?
-      patch.attach!(request.env["rack.input"].read)
-      status 201
     end
 
     get '/favico.ico' do

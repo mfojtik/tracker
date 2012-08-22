@@ -14,7 +14,7 @@ opts = Trollop::options do
   opt :config, "Tracker config file location", :short => 'c', :default => "#{File.join(ENV['HOME'], '.trackerrc')}"
   opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
   opt :message, "Add short message to actions", :short => 'm', :type => :string
-  opt :id, "Patchset ID used by download action", :short => 'i', :type => :int
+  opt :id, "Patchset ID used by download action", :short => 'i', :type => :string
   opt :upload, 'Upload current branch patches after record', :short => 'u', :type => :flag
 end
 

@@ -4,6 +4,7 @@ module Tracker
     require 'yaml'
     require 'json'
     require 'base64'
+    require 'tempfile'
 
     GIT_JSON_FORMAT = '{ "hashes":'+
       '{ "commit":"%H", "tree":"%T",'+' "parents":"%P" },'+
@@ -121,14 +122,25 @@ module Tracker
     end
 
     def self.upload_patch_body(commit_id, body)
-      RestClient.put(
-        config[:url] + ('/patch/%s/body' % commit_id),
-        body,
-        {
-          :content_type => 'application/json',
-          'Authorization' => "Basic #{basic_auth}"
-        }
-      )
+      patch_file = Tempfile.new(commit_id)
+      begin
+        patch_file.write(body)
+        patch_file.rewind
+        RestClient.post(
+          config[:url] + ('/patch/%s/body' % commit_id),
+          {
+            :diff => patch_file
+          },
+          {
+            'Authorization' => "Basic #{basic_auth}"
+          }
+        )
+      rescue => e
+        puts "[ERR] Upload of #{commit_id} failed. (#{e.message})"
+      ensure
+        patch_file.close
+        patch_file.unlink
+      end
     end
 
     def self.download_patch_body(commit_id)
@@ -155,7 +167,7 @@ module Tracker
             'Authorization' => "Basic #{basic_auth}"
           }
         )
-        patches = JSON::parse(response)['patches'].map { |p| p['commit'] }
+        patches = JSON::parse(response)['patches']
       rescue => e
         puts "ERR: #{e.message}"
         exit
