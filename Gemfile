@@ -10,6 +10,7 @@ gem 'json_pure'
 gem 'dm-serializer'
 gem 'dm-constraints'
 gem 'pony'
+gem 'dm-pager'
 
 group :devel do
   gem 'thin'

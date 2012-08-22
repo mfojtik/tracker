@@ -3,16 +3,12 @@ module Tracker
 
     def self.included(base)
       DataMapper::Logger.new($stdout, :debug)
-      if ENV['RACK_ENV'] == 'production'
-        DataMapper.setup(:default,
-                         :adapter  => 'mongo',
-                         :host => '',
-                         :username => 'admin',
-                         :password => '',
-                         :database => ''
-                        )
-      else
-        DataMapper.setup(:default, "sqlite://#{File.join(File.dirname(__FILE__), '..')}/tracker.db")
+      begin
+        load File.join(File.dirname(__FILE__), '..', 'config', 'database.rb')
+      rescue LoadError
+        puts 'Please configure your database in config/database.rb'
+        puts $!.message
+        exit(1)
       end
       DataMapper.finalize
       DataMapper.auto_upgrade!
@@ -90,6 +86,7 @@ module Tracker
       property :author, String
       property :revision, Integer, :default => 1
       property :created_at, DateTime
+      property :status, String, :default => 'new'
 
       has n, :patches, :constraint => :destroy
 
@@ -104,9 +101,11 @@ module Tracker
       def nacked?; all_status?(:nack); end
       def pushed?; all_status?(:push); end
 
-      def all_status?(status)
-        puts "#{status}: #{patches.all(:status => status).size} : #{patches.all.count}"
-        patches.all(:status => status).size == patches.all.count
+      def all_status?(s)
+        update(:status => 'new') if status.nil? # Backward compatibility
+        match_status = patches.all(:status => s).size == patches.all.count
+        update(:status => s) if match_status and status != s
+        match_status
       end
 
       def self.active

@@ -25,7 +25,9 @@ module Tracker
     end
 
     get '/' do
-      @sets = PatchSet.active.all(:order => [ :id.desc ])
+      sets = filter PatchSet.active.all(:order => [ :id.desc ])
+      @counter = format_counter(sets)
+      @sets = sets.page(params[:page] || 1, :per_page => 10)
       haml :index
     end
 

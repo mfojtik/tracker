@@ -27,7 +27,7 @@ td.set p.updated {
 td.set p.updated {
   text-align : right;
   margin-left : 1em;
-  padding : 5px;
+  padding : 2px;
 }
 
 td.set p.info {
@@ -35,7 +35,7 @@ td.set p.info {
   background: #EEE;
   border-radius: 3px;
   font-size : 90%;
-  padding : 5px;
+  padding : 2px;
 }
 
 .set div {

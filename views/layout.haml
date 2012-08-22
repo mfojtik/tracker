@@ -26,3 +26,12 @@
     .container
       .row
         .span12=yield
+      %footer
+        .row
+          .span12
+            %p{ :style => 'text-align:right'}
+              %small
+                Powered by
+                %a{ :href => 'http://github.com/mifo/tracker'} Tracker
+                |
+                %a{ :href => 'https://github.com/mifo/tracker/issues/new'} Report problems

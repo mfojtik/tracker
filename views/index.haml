@@ -1,10 +1,19 @@
-%h2 #{@sets.count} open requests
+%h2=@counter
 
 %p.pull-right
   - if !authorized?
     %a.btn.btn-info{ :href => '/login'} Login
 
 %br
+
+%p.pull-right
+  %small
+    Display only:
+    %a{ :href => '?filter=status&filter_value=new', :style => 'color:#84b6eb'} New
+    %a{ :href => '?filter=status&filter_value=ack', :style => 'color:#6CC644'} Ack
+    %a{ :href => '?filter=status&filter_value=nack', :style => 'color:#C52323'} Nack
+    %a{ :href => '?filter=status&filter_value=push', :style => 'color:#e6e6e6'} Push
+    %a{ :href => '/'} All
 
 %table.table.table-bordered
   - @sets.each do |set|
@@ -13,13 +22,20 @@
         %div
           %span{ :class => 'status %s' % (format_set_status(set))}
           %h4
-            ="##{set.id}"
-            %a{ :href => '/set/%s' % set.id}=set.patches.first.message[0..50]
+            - if set.pushed?
+              %del
+                ="##{set.id}"
+                %a{ :href => '/set/%s' % set.id}=set.patches.first.message[0..50]
+            - else
+              ="##{set.id}"
+              %a{ :href => '/set/%s' % set.id}=set.patches.first.message[0..50]
           %p.info.pull-left
-            %b=set.author
-            recorded this set
-            %em=Time.parse(set.created_at.to_s).ago_in_words
-          - if !set.patches.empty?
-            %p.updated.pull-left
-              %small Updated #{Time.parse(set.patches.max(:updated_at).to_s).ago_in_words}
+            %small
+              %b=set.author
+              recorded this set
+              %em=Time.parse(set.created_at.to_s).ago_in_words
+              - if !set.patches.empty?
+                %p.updated.pull-right
+                  %small Updated #{Time.parse(set.patches.max(:updated_at).to_s).ago_in_words}
 
+=@sets.pager.to_html('/')

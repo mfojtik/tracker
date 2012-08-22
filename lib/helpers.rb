@@ -42,6 +42,18 @@ module Tracker
 
     module Application
 
+      def filter(collection)
+        return collection if !params[:filter]
+        return [] if !params[:filter_value]
+        collection.all(:"#{params[:filter]}".like => '%'+params[:filter_value]+'%')
+      end
+
+      def format_counter(sets)
+        new_requests_count = sets.size - sets.select { |s| (s.acked? || s.nacked? || s.pushed?) }.size
+        not_pushed_count = sets.size - (sets.select { |s| s.pushed? || s.nacked? }.size + new_requests_count)
+        '%i new requests, %i not pushed' % [ new_requests_count, not_pushed_count]
+      end
+
       def format_status(value)
         case value
         when :new then "<span class='badge badge-info'>#{value.upcase}</span>"
