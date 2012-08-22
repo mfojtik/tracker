@@ -17,9 +17,10 @@
 
 %table.table.table-bordered
   - @sets.each do |set|
-    %tr
+    %tr{ :style => set.pushed? ? 'opacity:0.4' : ''}
       %td{ :id => 'set%s' % set.id, :class => :set }
         %div
+          %img{ :style => 'float:left;margin-right:1em;width:64px;', :src => gravatar(set.author) }
           %span{ :class => 'status %s' % (format_set_status(set))}
           %h4
             - if set.pushed?

@@ -73,7 +73,7 @@
   - if !@patch.body.nil?
     %ul.nav.nav-pills.pull-right
       %li
-        %a{ :href => '/set/%s/download' % @patch.commit }
+        %a{ :href => '/patch/%s/download' % @patch.commit }
           %i{ :class => 'icon-arrow-down'}
           Download
     %pre=@patch.body

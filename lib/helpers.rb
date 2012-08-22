@@ -47,6 +47,12 @@ module Tracker
     end
 
     module Application
+      require 'digest/md5'
+
+      def gravatar(email)
+        id = Digest::MD5::hexdigest(email.strip.downcase)
+        'http://www.gravatar.com/avatar/' + id + '.jpg?s=64'
+      end
 
       def filter(collection)
         return collection if !params[:filter]
