@@ -87,11 +87,9 @@ module Tracker
       must_authenticate!
       params[:status] = params[:action] if !params[:action].nil?
       check_valid_status!
-      Patch.first(:id => params[:id]).update_status!(
-        params[:action] || params[:status],
-        credentials[:user],
-        params[:message]
-      )
+      patch = Patch.first(:id => params[:id])
+      patch.update_status!(params[:action] || params[:status], credentials[:user], params[:message])
+      send_notification :update_status, self, patch.reload
       redirect back
     end
 
