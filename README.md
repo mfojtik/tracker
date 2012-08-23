@@ -31,6 +31,9 @@ And you may view details about the patchset you sent here:
 
 ![img1](http://omicron.mifo.sk/tracker_3.png)
 
+If you want to also upload all your patches to server after recording, just add
+<code>-u</code> option after record command.
+
 Good. You have just recorded your patches, so now you don't loose track of them.
 Go ahead, send your patches to the mailing list, and find someone who will review your patches.
 
@@ -43,6 +46,10 @@ and tracker client will upload your patches into tracker application. The users
 can the download and apply your patches by simply typing:
 
 <code>$ tracker apply COMMIT_HASH</code>
+
+You can also download **whole** set and apply the patches using:
+
+<code>$ tracker download SET_ID -b your_review_branch</code>
 </em>
 
 If the person is happy about what you did, and wants to give you an ACK, then he can do it by:
