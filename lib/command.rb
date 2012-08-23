@@ -53,7 +53,8 @@ module Tracker
       commit_messages_raw = git_cmd('git log --pretty=oneline origin/master..HEAD', directory)
       commit_messages = commit_messages_raw.each_line.map.inject({}) do |result, line|
         hash, message = line.split(' ', 2)
-        result[hash] = message.strip
+        full_message = git_cmd("git rev-list --format=%B --max-count=1 #{hash}", directory)
+        result[hash] = { :msg => message.strip, :full_message => full_message }
         result
       end
       "[#{patches_in_json}#{JSON::dump(commit_messages)}]"
@@ -122,6 +123,8 @@ module Tracker
     end
 
     def self.upload_patch_body(commit_id, body)
+      # Inject TrackedAt header to the commit message
+      body.sub!(/^---/m, "TrackedAt: #{config[:url]}/patch/#{commit_id}\n\n---")
       patch_file = Tempfile.new(commit_id)
       begin
         patch_file.write(body)
@@ -229,9 +232,15 @@ module Tracker
         patches = JSON::parse(patches_to_json(directory))
         messages = patches.pop
         patches.each do |p|
+          messages[p['hashes']['commit']]['full_message'][/TrackedAt: (.*)./m]
+          tracker_commit_url = $1.chop
+          if tracker_commit_url.nil?
+            puts '[ERR] Patch has not be recorded by tracker (no TrackedAt header)'
+            next
+          end
           begin
             RestClient.post(
-              config[:url] + ('/patch/%s/%s' % [p['hashes']['commit'], name]),
+              tracker_commit_url + '/' + name.to_s,
               {
                 :message => options[:message]
               },
@@ -240,7 +249,7 @@ module Tracker
                 'Authorization' => "Basic #{basic_auth}"
               }
             )
-            puts '[%s][%s] %s' % [name.to_s.upcase, p['hashes']['commit'][-8, 8], messages[p['hashes']['commit']]]
+            puts '[%s][%s] %s' % [name.to_s.upcase, p['hashes']['commit'][-8, 8], messages[p['hashes']['commit']]['msg']]
           rescue => e
             puts '[ERR] %s' % e.message
           end
