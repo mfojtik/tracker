@@ -30,14 +30,18 @@ def print_usage
   puts 'tracker push      -   Mark all patches in current branch as PUSHED'
   puts 'tracker status    -   Display review status for current branch'
   puts 'tracker upload    -   Upload current patches (diffs) to tracker'
-  puts 'tracker download  -   Download whole patchset from tracker (-i PATCHSET_ID)'
+  puts 'tracker download  -   Download whole patchset from tracker (-i PATCHSET_ID, -b CREATE_BRANCH)'
   puts 'tracker apply     -   Apply patch with specified commit (-i COMMIT_ID)'
+  puts 'tracker list      -   List all active sets'
   puts
   system("#{__FILE__} --help")
   puts
   puts 'Examples:'
   puts
-  puts '$ tracker record -o 45    # Record current branch and obsolete patchset 45 (bump revision)'
+  puts '$ tracker record -o 45           # Record current branch and obsolete patchset 45 (bump revision)'
+  puts '$ tracker record -u              # Record current branch and upload all patches'
+  puts '$ tracker list new               # Display all new or open sets'
+  puts '$ tracker list mfojtik -i author # Display all sets that were recorded by %mfojtik%'
   ''
 end
 
@@ -52,5 +56,6 @@ puts case ARGV[0]
   when 'download' then Tracker::Cmd.download(opts[:dir], ARGV[1], opts[:branch])
   when 'status' then Tracker::Cmd.status(opts[:dir])
   when 'apply' then Tracker::Cmd.apply(opts[:dir], ARGV[1])
+  when 'list' then Tracker::Cmd.list(ARGV[1], opts)
   else print_usage
 end
