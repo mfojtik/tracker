@@ -1,0 +1,6 @@
+# Setup DataMapper here:
+#
+
+#DataMapper.setup(:default, "sqlite://#{File.join(File.dirname(__FILE__), '..')}/tracker.db")
+
+DataMapper.setup(:default, 'postgres://username:password@localhost/database_name')
