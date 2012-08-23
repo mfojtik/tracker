@@ -1,6 +1,6 @@
 %h2
   %a{:href => '/'}="##{@set.id}"
-  =": #{@set.patches.last.message}"
+  =": #{@set.first_patch_message}"
   - if @set.patches.count > 1
     %small
       %em="... and #{@set.patches.count - 1} more"
@@ -27,7 +27,7 @@
 %br
 
 %table.table.table-bordered
-  - @set.patches.all(:order => [ :created_at.desc ]).each do |p|
+  - @set.patches.all(:order => [ :id.asc ]).each do |p|
     %tr
       %td.t-label
         %a{ :href => '/patch/%s' % p.commit }
