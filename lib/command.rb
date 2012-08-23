@@ -157,7 +157,7 @@ module Tracker
       end
     end
 
-    def self.download(directory, patchset_id)
+    def self.download(directory, patchset_id, branch=nil)
       patches = []
       begin
         response = RestClient.get(
@@ -174,11 +174,15 @@ module Tracker
       end
       counter = 0
       puts
+      puts git_cmd("git checkout -b #{branch}", directory) if !branch.nil?
       patches.each do |commit|
-        File.open(File.join(directory, "#{counter}-#{commit}.patch"), 'w') { |f|
-          f.puts download_patch_body(commit)
-        }
-        puts '[v] %s-%s.patch' % [counter, commit]
+        patch_filename = File.join(directory, "#{counter}-#{commit}.patch")
+        File.open(patch_filename, 'w') { |f| f.puts download_patch_body(commit) }
+        if !branch.nil?
+          puts git_cmd("git am #{patch_filename}", directory)
+        else
+          puts '[v] %s-%s.patch' % [counter, commit]
+        end
         counter += 1
       end
       puts "\n -> #{counter} patches downloaded."
