@@ -39,8 +39,7 @@ module Tracker
       end
 
       def attach!(diff)
-        update(:body => diff)
-        save
+        update!(:body => diff)
       end
 
       def self.active(commit_id)
@@ -64,6 +63,10 @@ module Tracker
 
       def other_patches
         patch_set.patches.reject { |p| p == self}
+      end
+
+      after :update do |p|
+        p.patch_set.refresh_status!
       end
 
     end
@@ -93,6 +96,11 @@ module Tracker
 
       attr_accessor :patches_ids
 
+      def first_patch_message
+        return 'Empty set' if patches.empty?
+        patches.first(:order => [ :id.asc ]).message
+      end
+
       def with_commits
         @patches_ids ||= self.patches.map { |p| p.commit }
         self
@@ -103,10 +111,7 @@ module Tracker
       def pushed?; all_status?(:push); end
 
       def all_status?(s)
-        update(:status => 'new') if status.nil? # Backward compatibility
-        match_status = patches.all(:status => s).size == patches.all.count
-        update(:status => s) if match_status and status != s
-        match_status
+        patches.all(:status => s).size == patches.all.count
       end
 
       def self.active
@@ -115,6 +120,17 @@ module Tracker
 
       def obsolete!
         update(:revision => -1)
+      end
+
+      def refresh_status!
+        update!(:status => 'new') if status.nil?
+        update!(:status => 'ack') if acked?
+        update!(:status => 'nack') if nacked?
+        update!(:status => 'push') if pushed?
+      end
+
+      def num_of_patches
+        patches.count
       end
 
       def self.create_from_json(author, json_str, old_patchset_id)

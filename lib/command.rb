@@ -288,6 +288,38 @@ module Tracker
       end
     end
 
+    def self.list(value, opts={})
+      filter = ''
+      if !value.nil?
+        if ['new', 'ack', 'nack', 'push'].include? value
+          filter += '?filter=status&filter_value=%s' % value
+        elsif !opts[:id].nil?
+          filter += '?filter=%s&filter_value=%s' % [opts[:id], value]
+        else
+          puts "[ERR] To use filters other than status, you must use -i FILTER_NAME parameter"
+          exit 1
+        end
+      end
+      response = RestClient.get(
+        config[:url] + ('/set%s' % filter),
+        {
+          'Accept' => 'application/json'
+        }
+      )
+      set_arr = JSON::parse(response)
+      puts
+      set_arr.each do |set|
+        puts "[%s][%s] \e[1m%s\e[0m (%s patches by %s)" % [
+          set['id'],
+          set['status'].upcase,
+          set['first_patch_message'],
+          set['num_of_patches'],
+          set['author']
+        ]
+      end
+      ''
+    end
+
     private
 
     # Execute GIT command ('git') in the specified directory. Method will then

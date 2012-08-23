@@ -48,7 +48,8 @@ module Tracker
     end
 
     get '/set', :provides => :json do
-      PatchSet.active.all(:order => [ :id.desc ]).to_json
+      sets = filter PatchSet.active.all(:order => [ :id.desc ])
+      sets.to_json(:methods => [ :first_patch_message, :num_of_patches ])
     end
 
     get '/set/:id', :provides => :html do
@@ -85,6 +86,7 @@ module Tracker
       check_valid_status!
       patch = Patch.first(:commit => params[:id], :order => [ :id.desc])
       result = patch.update_status!(params[:status], credentials[:user], params[:message])
+      patch.patch_set.all_status?(:new) # Needed for refresh overal patch set status
       send_notification :update_status, self, patch.reload
       result
     end
@@ -112,6 +114,7 @@ module Tracker
       check_valid_status!
       patch = Patch.first(:id => params[:id])
       patch.update_status!(params[:action] || params[:status], credentials[:user], params[:message])
+      patch.patch_set.all_status?(:new)
       send_notification :update_status, self, patch.reload
       redirect back
     end
