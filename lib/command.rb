@@ -204,13 +204,11 @@ module Tracker
     # * +directory+ - If given, cmd app will 'chdir' into that directory (default: nil)
     #
     def self.action(name, directory, options={})
-      patches = JSON::parse(patches_to_json(directory))
-      messages = patches.pop
       puts
-      patches.each do |p|
+      if options[:set]
         begin
           RestClient.post(
-            config[:url] + ('/patch/%s/%s' % [p['hashes']['commit'], name]),
+            config[:url] + ('/set/%s/%s' % [options[:set], name]),
             {
               :message => options[:message]
             },
@@ -219,9 +217,29 @@ module Tracker
               'Authorization' => "Basic #{basic_auth}"
             }
           )
-          puts '[%s][%s] %s' % [name.to_s.upcase, p['hashes']['commit'][-8, 8], messages[p['hashes']['commit']]]
+          puts '[%s][%s] Status of all patches in set updated.' % [name, options[:set]]
         rescue => e
           puts '[ERR] %s' % e.message
+        end
+      else
+        patches = JSON::parse(patches_to_json(directory))
+        messages = patches.pop
+        patches.each do |p|
+          begin
+            RestClient.post(
+              config[:url] + ('/patch/%s/%s' % [p['hashes']['commit'], name]),
+              {
+                :message => options[:message]
+              },
+              {
+                :content_type => 'application/json',
+                'Authorization' => "Basic #{basic_auth}"
+              }
+            )
+            puts '[%s][%s] %s' % [name.to_s.upcase, p['hashes']['commit'][-8, 8], messages[p['hashes']['commit']]]
+          rescue => e
+            puts '[ERR] %s' % e.message
+          end
         end
       end
       "  |\n  |--------> [%s]\n\n" % config[:url]

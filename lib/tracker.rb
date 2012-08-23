@@ -95,6 +95,17 @@ module Tracker
       redirect '/'
     end
 
+    post '/set/:id/:status', :provides => :json do
+      must_authenticate!
+      check_valid_status!
+      set = PatchSet.first(:id => params[:id])
+      set.patches.each do |p|
+        p.update_status!(params[:status], credentials[:user], params[:message])
+        send_notification :update_status, self, p
+      end
+      halt 204
+    end
+
     get '/patch/:id/:status' do
       must_authenticate!
       params[:status] = params[:action] if !params[:action].nil?

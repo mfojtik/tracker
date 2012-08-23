@@ -42,9 +42,11 @@ end
 
 puts case ARGV[0]
   when 'record' then Tracker::Cmd.record(opts[:dir], { :obsolete => opts[:obsolete], :upload => opts[:upload]})
-  when 'ack' then Tracker::Cmd.ack(opts[:dir], :message => opts[:message])
-  when 'nack' then Tracker::Cmd.nack(opts[:dir], :message => opts[:message])
-  when 'push' then Tracker::Cmd.push(opts[:dir], :message => opts[:message])
+
+  when 'ack' then Tracker::Cmd.ack(opts[:dir], { :message => opts[:message], :set => opts[:id] })
+  when 'nack' then Tracker::Cmd.nack(opts[:dir], { :message => opts[:message], :set => opts[:id] })
+  when 'push' then Tracker::Cmd.push(opts[:dir], { :message => opts[:message], :set => opts[:id] })
+
   when 'upload' then Tracker::Cmd.upload(opts[:dir])
   when 'download' then Tracker::Cmd.download(opts[:dir], opts[:id])
   when 'status' then Tracker::Cmd.status(opts[:dir])
