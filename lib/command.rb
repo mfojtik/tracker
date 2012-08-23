@@ -124,7 +124,7 @@ module Tracker
 
     def self.upload_patch_body(commit_id, body)
       # Inject TrackedAt header to the commit message
-      body.sub!(/^---/m, "TrackedAt: #{config[:url]}/patch/#{commit_id}\n\n---")
+      body.sub!(/^---/m, "TrackedAt: #{config[:url].gsub(/\/$/, '')}/patch/#{commit_id}\n\n---")
       patch_file = Tempfile.new(commit_id)
       begin
         patch_file.write(body)
