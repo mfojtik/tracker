@@ -12,8 +12,8 @@
   })
 
 %h2
-  %a{ :href => '/set/%s' % @patch.patch_set.id }="##{@patch.patch_set.id} : "
-  =@patch.message
+  %a{ :href => '/set/%s' % @patch.patch_set.id }="##{@patch.patch_set.id} :"
+  ="[#{@patch.current_index}/#{@patch.patch_set.num_of_patches}] #{@patch.message[0..50]}"
 
 %p.pull-right
   - if authorized? and !@patch.obsoleted?
@@ -71,7 +71,7 @@
           - @patch.other_patches.each do |p|
             %li
               %a{ :href => '/patch/%s' % p.commit }
-                %code=p.commit[-8, 8]
+                %span.badge="#{p.current_index}/#{@patch.patch_set.num_of_patches}"
               =p.message
 
 #diff
@@ -81,7 +81,7 @@
         %a{ :href => '/patch/%s/download' % @patch.commit }
           %i{ :class => 'icon-arrow-down'}
           Download
-    %pre=@patch.body
+    =format_diff @patch.body.each_line.map
 
 -if authorized? and !@patch.obsoleted?
   %ul.nav.nav-pills.pull-right

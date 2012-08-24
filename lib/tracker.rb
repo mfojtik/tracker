@@ -138,5 +138,10 @@ module Tracker
       halt 404, "No I don't have any favicon.ico"
     end
 
+    get '/css/diffy.css' do
+      content_type 'text/css'
+      Diffy::CSS
+    end
+
   end
 end

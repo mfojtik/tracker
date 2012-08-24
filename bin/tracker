@@ -25,6 +25,7 @@ def print_usage
   puts 'Usage:'
   puts
   puts 'tracker record    -   Record current patchset to tracker'
+  puts 'tracker publish   -   Record current patchset to tracker and upload patches'
   puts 'tracker ack       -   ACK all patches in current branch'
   puts 'tracker nack      -   NACK all patches in current branch'
   puts 'tracker push      -   Mark all patches in current branch as PUSHED'
@@ -57,5 +58,6 @@ puts case ARGV[0]
   when 'status' then Tracker::Cmd.status(opts[:dir])
   when 'apply' then Tracker::Cmd.apply(opts[:dir], ARGV[1])
   when 'list' then Tracker::Cmd.list(ARGV[1], opts)
+  when 'publish' then Tracker::Cmd.record(opts[:dir], { :obsolete => opts[:obsolete], :upload => true})
   else print_usage
 end

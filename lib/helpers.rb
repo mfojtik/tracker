@@ -49,6 +49,12 @@ module Tracker
     module Application
       require 'digest/md5'
 
+      def format_diff(diff)
+        Diffy::HtmlFormatter.new(diff, {
+          :include_plus_and_minus_in_html => true
+        })
+      end
+
       def gravatar(email)
         id = Digest::MD5::hexdigest(email.strip.downcase)
         'http://www.gravatar.com/avatar/' + id + '.jpg?s=64'

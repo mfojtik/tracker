@@ -72,3 +72,8 @@ span.pushed {
 td.t-label {
   text-align : center;
 }
+
+div.diff {
+  border : 1px solid #ccc;
+  clear : both;
+}

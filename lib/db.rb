@@ -90,7 +90,11 @@ module Tracker
       # Return the other patches in the same patch set
       #
       def other_patches
-        patch_set.patches.reject { |p| p == self }
+        patch_set.patches.all(:order => [ :id.asc ]).reject { |p| p == self }
+      end
+
+      def current_index
+        1 + patch_set.patches.all(:order => [:id.asc ]).index(self)
       end
 
       # Update overall status of the patch set after each update

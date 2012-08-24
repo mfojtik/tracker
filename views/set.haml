@@ -1,9 +1,6 @@
 %h2
   %a{:href => '/'}="##{@set.id}"
   =": #{@set.first_patch_message}"
-  - if @set.patches.count > 1
-    %small
-      %em="... and #{@set.patches.count - 1} more"
 
 - if authorized?
   %p.pull-right
@@ -34,10 +31,10 @@
 %table.table.table-bordered
   - @set.patches.all(:order => [ :id.asc ]).each do |p|
     %tr
-      %td.t-label
-        %a{ :href => '/patch/%s' % p.short_commit }
-          %code=p.short_commit
+      %td.t-label{:style => 'width:40px'}
+        %span.badge.badge-inverse="PATCH #{p.current_index}/#{@set.num_of_patches}"
       %td.t-label=format_status p.status
-      %td=p.message
+      %td
+        %a{ :href => '/patch/%s' % p.short_commit }=p.message
       %td.t-label
         %small=p.updated_by
