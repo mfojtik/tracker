@@ -21,6 +21,7 @@ module Tracker
       property :commit, String
       property :author, String
       property :message, Text
+      property :summary, Text
       property :commited_at, DateTime
       property :status, Enum[ :new, :ack, :nack, :push ], :default => :new
       property :updated_by, String
@@ -50,6 +51,7 @@ module Tracker
 
       def obsoleted?
         return true if patch_set.nil?
+        fix_message! # Backward compatibility fix
         patch_set.revision <= 0
       end
 
@@ -67,6 +69,15 @@ module Tracker
 
       after :update do |p|
         p.patch_set.refresh_status!
+      end
+
+      private
+
+      def fix_message!
+        if !message.nil? and message =~ %r[^{"msg"=>]
+          new_msg = eval(message)
+          update!(:message => new_msg['msg'], :summary => new_msg['full_message'])
+        end
       end
 
     end
@@ -138,10 +149,14 @@ module Tracker
         patch_arr = JSON::parse(json_str)
         messages = patch_arr.pop
         patches_arr = patch_arr.map do |p|
+          summary = messages[p['hashes']['commit']]['full_message']
+          # Remove commit and tracked URL
+          summary = summary.each_line.map.to_a[1..-2].join("\n") if !summary.empty?
           Patch.new(
             :commit => p['hashes']['commit'],
             :author => p['author']['email'],
-            :message => messages[p['hashes']['commit']] || 'Patch does not have commit message',
+            :message => messages[p['hashes']['commit']]['msg'] || 'Patch does not have commit message',
+            :summary => summary,
             :commited_at => p['author']['date'],
           )
         end

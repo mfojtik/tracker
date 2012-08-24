@@ -3,6 +3,9 @@ module Tracker
   class App < Sinatra::Base
 
     include Tracker::Models
+    include Rack::Utils
+
+    alias_method :h, :escape_html
 
     helpers Tracker::Helpers::Authentication
     helpers Tracker::Helpers::Application
