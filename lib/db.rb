@@ -51,7 +51,6 @@ module Tracker
 
       def obsoleted?
         return true if patch_set.nil?
-        fix_message! # Backward compatibility fix
         patch_set.revision <= 0
       end
 
@@ -69,15 +68,6 @@ module Tracker
 
       after :update do |p|
         p.patch_set.refresh_status!
-      end
-
-      private
-
-      def fix_message!
-        if !message.nil? and message =~ %r[^{"msg"=>]
-          new_msg = eval(message)
-          update!(:message => new_msg['msg'], :summary => new_msg['full_message'])
-        end
       end
 
     end
