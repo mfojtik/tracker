@@ -11,6 +11,7 @@ gem 'dm-serializer'
 gem 'dm-constraints'
 gem 'pony'
 gem 'dm-pager'
+gem 'diffy'
 
 group :devel do
   gem 'thin'
