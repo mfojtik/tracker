@@ -82,7 +82,7 @@ module Tracker
 
       def update_status!(new_state, author, message=nil)
         new_state = status.to_s if new_state.intern == :note
-        update(:status => new_state.intern, :updated_by => author)
+        update!(:status => new_state.intern, :updated_by => author)
         (logs << Log.create(:message => message || '', :author => author, :action => new_state.to_s)) && save
         self
       end
@@ -151,7 +151,7 @@ module Tracker
       # Mark the set as obsolete
       #
       def obsolete!
-        update(:revision => -1)
+        update!(:revision => -1)
       end
 
       # The set has 'status' field that cache the status

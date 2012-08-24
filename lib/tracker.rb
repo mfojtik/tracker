@@ -74,7 +74,11 @@ module Tracker
 
     post '/set', :provides => :json do
       must_authenticate!
-      set = PatchSet.create_from_json(credentials[:user], request.env["rack.input"].read, env['HTTP_X_OBSOLETES'])
+      set = PatchSet.create_from_json(
+        credentials[:user],
+        request.env["rack.input"].read,
+        env['HTTP_X_OBSOLETES']
+      )
       send_notification(:create_set, self, set)
       set.to_json
     end
@@ -121,7 +125,11 @@ module Tracker
       check_valid_status!
       patch = Patch.first(:id => params[:id])
       throw(:halt, [404, 'Patch %s not found. <a href="/">Back.</a>']) if patch.nil?
-      patch = patch.update_status!(params[:action] || params[:status], credentials[:user], params[:message])
+      patch = patch.update_status!(
+        params[:action] || params[:status],
+        credentials[:user],
+        params[:message]
+      )
       send_notification :update_status, self, patch
       redirect back
     end
