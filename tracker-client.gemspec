@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
   s.add_dependency "rest-client"
   s.add_dependency "trollop"
   s.add_dependency "json"
-  s.add_dependency "yaml"
 
   s.files        = Dir['bin/*'] + ['lib/command.rb']
   s.executables  = ['tracker']

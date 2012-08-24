@@ -35,8 +35,8 @@
   - @set.patches.all(:order => [ :id.asc ]).each do |p|
     %tr
       %td.t-label
-        %a{ :href => '/patch/%s' % p.commit }
-          %code=p.commit[-8, 8]
+        %a{ :href => '/patch/%s' % p.short_commit }
+          %code=p.short_commit
       %td.t-label=format_status p.status
       %td=p.message
       %td.t-label

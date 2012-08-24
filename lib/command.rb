@@ -88,13 +88,9 @@ module Tracker
     end
 
     def self.apply(directory, commit_id)
-      unless commit_id =~ /(\w{40})/
-        puts 'You must provide GIT commit hash (40 characters).'
-        exit 1
-      end
       patch_body = download_patch_body(commit_id)
       File.open(File.join(directory, "#{commit_id}.patch"), 'w') { |f| f.puts patch_body }
-      print 'Are you sure you want to apply patch to current branch? [Y/n]'
+      print '[%s] Are you sure you want to apply patch to current branch? [Y/n]' % commit_id
       exit if (STDIN.gets.chomp) == 'n'
       git_cmd("git am #{commit_id}.patch", directory)
     end
