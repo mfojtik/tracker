@@ -3,7 +3,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = "tracker-client"
-  s.version     = '1.0.4'
+  s.version     = '1.0.5'
   s.platform    = Gem::Platform::RUBY
   s.license     = "ASL"
   s.authors     = ["Michal Fojtik"]
@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rest-client"
   s.add_dependency "trollop"
   s.add_dependency "json"
+  s.add_dependency "yaml"
 
   s.files        = Dir['bin/*'] + ['lib/command.rb']
   s.executables  = ['tracker']
