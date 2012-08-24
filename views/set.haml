@@ -18,6 +18,11 @@
   %tr
     %th.well.t-label Revision
     %td=@set.revision
+  - if !@set.patches.any? { |p| p.body.nil? }
+    %tr
+      %th.well.t-label Download
+      %td
+        %code="$ tracker download #{@set.id}"
   %tr
     %th.well.t-label Recorded
     %td=Time.parse(@set.created_at.to_s).ago_in_words
