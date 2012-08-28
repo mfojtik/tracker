@@ -41,6 +41,10 @@ module Tracker
         commit[0, 8]
       end
 
+      def human_name
+        "[#{current_index}/#{patch_set.num_of_patches}] #{message[0..50].strip}"
+      end
+
       # Method counts patches that share same commit id
       # Usualy they are older versions of the current patch and this
       # number is then used as a patch version

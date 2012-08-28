@@ -13,7 +13,7 @@
 
 %h2
   %a{ :href => '/set/%s' % @patch.patch_set.id }="##{@patch.patch_set.id} :"
-  ="[#{@patch.current_index}/#{@patch.patch_set.num_of_patches}] #{@patch.message[0..50]}"
+  = @patch.human_name
 
 %p.pull-right
   - if authorized? and !@patch.obsoleted?
@@ -21,7 +21,7 @@
     %a.btn.btn-danger{ :href => "/patch/#{@patch.id}/nack"} NACK
     %a.btn{ :href => "/patch/#{@patch.id}/push"} PUSH
   - if !@patch.body.nil?
-    %a.btn{ :href => '/patch/%s/download' % @patch.commit }
+    %a.btn{ :href => '/patch/%s/download' % @patch.short_commit }
       %i{ :class => 'icon-arrow-down'}
       Download
 
@@ -38,7 +38,7 @@
     %tr
       %th Commit
       %td
-        %code=@patch.commit
+        %code=@patch.short_commit
     - if !@patch.body.nil? and !@patch.obsoleted?
       %tr
         %th Download
@@ -70,15 +70,13 @@
               %em No other patches in this set
           - @patch.other_patches.each do |p|
             %li
-              %a{ :href => '/patch/%s' % p.commit }
-                %span.badge="#{p.current_index}/#{@patch.patch_set.num_of_patches}"
-              =p.message
+              %a{ :href => '/patch/%s' % p.short_commit }=p.human_name
 
 #diff
   - if !@patch.body.nil?
     %ul.nav.nav-pills.pull-right
       %li
-        %a{ :href => '/patch/%s/download' % @patch.commit }
+        %a{ :href => '/patch/%s/download' % @patch.short_commit }
           %i{ :class => 'icon-arrow-down'}
           Download
     =format_diff @patch.body.each_line.map

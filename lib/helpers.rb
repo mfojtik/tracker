@@ -22,26 +22,29 @@ module Tracker
 
       def send_create_set_notification(app, obj)
         template = "The set #%i was successfully registered at http://%s/set/%i.\n"
+        template = template % [obj.id, app.request.host, obj.id]
         template += "\nPatches:\n\n"
         obj.patches.each do |p|
-          template += "* [#{p.commit[-8, 8]}] #{p.message}\n"
-          template += "   http://#{app.request.host}/patch/#{p.commit}\n\n"
+          template += "* [#{p.short_commit}]#{p.human_name}\n"
+          template += "   http://#{app.request.host}/patch/#{p.short_commit}\n\n"
         end
-        template = template % [obj.id, app.request.host, obj.id]
+        template += "View set: http://#{app.request.host}/set/#{obj.id}\n"
+        template += "Apply set: $ tracker download #{obj.id} -b reviews/set_#{obj.id}\n"
         n "#{obj.patches.count} patches recorded by #{obj.author}", template
       end
 
       def send_update_status(app, obj)
-        template = "The patch #{obj.commit[-8,8]} state changed to #{obj.status.to_s.upcase} "
+        template = "The patch #{obj.short_commit} state changed to #{obj.status.to_s.upcase} "
         template += "by #{obj.updated_by}.\n"
-        template += "\n\n* [#{obj.commit[-8,8]}] #{obj.message}\n"
+        template += "\n\n* [#{obj.short_commit}] #{obj.message}\n"
         template += "    by #{obj.author}\n\n"
         template += "Notes:\n"
         template += obj.logs.last.message
         template += "\n\n"
-        template += "View patch: http://#{app.request.host}/patch/#{obj.commit}\n"
-        template += "Download patch: http://#{app.request.host}/patch/#{obj.commit}/download\n"
-        n "Patch #{obj.commit[-8,8]} status changed to #{obj.status.to_s.upcase}", template
+        template += "View patch: http://#{app.request.host}/patch/#{obj.short_commit}\n"
+        template += "Download patch: http://#{app.request.host}/patch/#{obj.short_commit}/download\n"
+        template += "Apply patch: $ tracker apply #{obj.short_commit}\n"
+        n "[#{obj.status.to_s.upcase}] #{obj.human_name} by #{obj.updated_by}", template
       end
 
     end
