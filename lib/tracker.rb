@@ -91,6 +91,20 @@ module Tracker
       status 201
     end
 
+    post '/set/:id/build' do
+      must_authenticate!
+      set = PatchSet.first(:id => params[:id])
+      throw(:halt, [404, 'Set %s not found. <a href="/">Back.</a>']) if set.nil?
+      set.build = Build.new(
+        :state => params[:state],
+        :install => params[:install],
+        :build => params[:build],
+        :patches => params[:patches],
+      )
+      set.save!
+      status 201
+    end
+
     post '/patch/:id/:status', :provides => :json do
       must_authenticate!
       check_valid_status!
@@ -132,6 +146,16 @@ module Tracker
       )
       send_notification :update_status, self, patch
       redirect back
+    end
+
+    get '/build/:set_id/:property' do
+      set = PatchSet.first(:id => params[:set_id])
+      if !set.build.nil?
+        content_type 'text/plain'
+        set.build.send(params[:property])
+      else
+        status 404
+      end
     end
 
     get '/favico.ico' do

@@ -121,6 +121,19 @@ module Tracker
       belongs_to :patch
     end
 
+    class Build
+      include DataMapper::Resource
+
+      property :id, Serial
+      property :state, String
+      property :install, Text
+      property :build, Text
+      property :patches, Text
+      property :created_at, DateTime
+
+      belongs_to :patch_set
+    end
+
     class PatchSet
       include DataMapper::Resource
 
@@ -131,6 +144,7 @@ module Tracker
       property :status, String, :default => 'new'
 
       has n, :patches, :constraint => :destroy
+      has 1, :build, :constraint => :destroy
 
       # Return the commit message of the first patch in set.
       # Usually this message is used as a set name

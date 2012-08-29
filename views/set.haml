@@ -23,6 +23,14 @@
   %tr
     %th.well.t-label Recorded
     %td=Time.parse(@set.created_at.to_s).ago_in_words
+  - if !@set.build.nil?
+    %tr
+      %th.well.t-label Build
+      %td
+        %span.badge.badge-info=@set.build.state
+        %a{ :class => 'badge', :href => '/build/%s/patches' % @set.id } Git
+        %a{ :class => 'badge', :href => '/build/%s/install' % @set.id } Install
+        %a{ :class => 'badge', :href => '/build/%s/build' % @set.id } Test
 
 %h3 Patches in this set:
 
