@@ -1,0 +1,17 @@
+<%=obj.updated_by%> changed state of <%=obj.short_commit%> to <%=obj.status.to_s.upcase%>.
+
+Patch details:
+
+[<%=obj.short_commit%>] <%=obj.human_name%>
+by <%=obj.author%>
+
+Notes:
+
+<%=obj.logs.first(:order => [ :created_at.desc ]).message%>
+
+URL: http://<%=app.request.host%>/patch/<%=obj.short_commit%>
+
+  Cheers!
+
+-------------
+You're receiving this emails because you're subscribed to: http://<%=app.request.host%>

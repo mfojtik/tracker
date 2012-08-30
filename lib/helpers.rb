@@ -21,30 +21,13 @@ module Tracker
       end
 
       def send_create_set_notification(app, obj)
-        template = "The set #%i was successfully registered at http://%s/set/%i.\n"
-        template = template % [obj.id, app.request.host, obj.id]
-        template += "\nPatches:\n\n"
-        obj.patches.each do |p|
-          template += "* [#{p.short_commit}]#{p.human_name}\n"
-          template += "   http://#{app.request.host}/patch/#{p.short_commit}\n\n"
-        end
-        template += "View set: http://#{app.request.host}/set/#{obj.id}\n"
-        template += "Apply set: $ tracker download #{obj.id} -b reviews/set_#{obj.id}\n"
-        n "#{obj.patches.count} patches recorded by #{obj.author}", template
+        n "#{obj.patches.count} patches by #{obj.author}",
+          erb(:'notifications/create_set', :locals => { :app => app, :obj => obj})
       end
 
       def send_update_status(app, obj)
-        template = "The patch #{obj.short_commit} state changed to #{obj.status.to_s.upcase} "
-        template += "by #{obj.updated_by}.\n"
-        template += "\n\n* [#{obj.short_commit}] #{obj.message}\n"
-        template += "    by #{obj.author}\n\n"
-        template += "Notes:\n"
-        template += obj.logs.last.message
-        template += "\n\n"
-        template += "View patch: http://#{app.request.host}/patch/#{obj.short_commit}\n"
-        template += "Download patch: http://#{app.request.host}/patch/#{obj.short_commit}/download\n"
-        template += "Apply patch: $ tracker apply #{obj.short_commit}\n"
-        n "[#{obj.status.to_s.upcase}] #{obj.message[0..50]} by #{obj.updated_by}", template
+        n "[#{obj.status.to_s.upcase}] #{obj.message[0..50]} by #{obj.updated_by}",
+          erb(:'notifications/update_status', :locals => { :app => app, :obj => obj})
       end
 
     end

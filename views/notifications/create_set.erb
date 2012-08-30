@@ -1,0 +1,15 @@
+The set <%=obj.id%> was successfully recorded to http://<%=app.request.host%>/set/<%=obj.id%>.
+
+Patches:
+
+<% obj.patches.each do |p| %>
+  * <%=p.human_name%>
+    http://<%=app.request.host%>/patch/<%=p.short_commit%>
+<% end %>
+
+Apply: $ tracker download <%=obj.id%> -b reviews/set_<%=obj.id%>
+
+  Cheers!
+
+-------------
+You're receiving this emails because you're subscribed to: http://<%=app.request.host%>

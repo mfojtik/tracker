@@ -35,6 +35,7 @@ module Tracker
 
     def email(message)
       subject, body = message.split(':', 2)
+      puts body
       begin
         Pony.mail(
           :to => recipients,
