@@ -42,7 +42,7 @@ module Tracker
       end
 
       def human_name
-        "[#{current_index}/#{patch_set.num_of_patches}] #{message[0..50].strip}"
+        "[#{current_index}/#{patch_set.num_of_patches}] #{message[0..90].strip}"
       end
 
       # Method counts patches that share same commit id

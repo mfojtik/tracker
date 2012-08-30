@@ -26,10 +26,10 @@
             - if set.pushed?
               %del
                 ="##{set.id}"
-                %a{ :href => '/set/%s' % set.id}=set.first_patch_message[0..50]
+                %a{ :href => '/set/%s' % set.id}=set.first_patch_message[0..90]
             - else
               ="##{set.id}"
-              %a{ :href => '/set/%s' % set.id}=set.first_patch_message[0..50]
+              %a{ :href => '/set/%s' % set.id}=set.first_patch_message[0..90]
           %p.info.pull-left
             %small
               %b=set.author

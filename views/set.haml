@@ -26,11 +26,16 @@
   - if !@set.build.nil?
     %tr
       %th.well.t-label Build
+      %td=format_build_state @set.build.state
+    %tr
+      %th.well.t-label Build logs
       %td
-        %span.badge.badge-info=@set.build.state
-        %a{ :class => 'badge', :href => '/build/%s/patches' % @set.id } Git
-        %a{ :class => 'badge', :href => '/build/%s/install' % @set.id } Install
-        %a{ :class => 'badge', :href => '/build/%s/build' % @set.id } Test
+        %a{:href => '/build/%s/patches' % @set.id }
+          %code patches.log
+        %a{:href => '/build/%s/install' % @set.id }
+          %code bundler.log
+        %a{:href => '/build/%s/build' % @set.id }
+          %code build.log
   %tr
     %th.well.t-label Status
     %td=@set.status.upcase

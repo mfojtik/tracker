@@ -44,7 +44,7 @@ module Tracker
         template += "View patch: http://#{app.request.host}/patch/#{obj.short_commit}\n"
         template += "Download patch: http://#{app.request.host}/patch/#{obj.short_commit}/download\n"
         template += "Apply patch: $ tracker apply #{obj.short_commit}\n"
-        n "[#{obj.status.to_s.upcase}] #{obj.human_name} by #{obj.updated_by}", template
+        n "[#{obj.status.to_s.upcase}] #{obj.message[0..50]} by #{obj.updated_by}", template
       end
 
     end
@@ -61,6 +61,14 @@ module Tracker
       def gravatar(email)
         id = Digest::MD5::hexdigest(email.strip.downcase)
         'http://www.gravatar.com/avatar/' + id + '.jpg?s=64'
+      end
+
+      def format_build_state(state)
+        case state
+          when 'success' then '<span class="label label-success">PASSED</span>'
+          when 'failure' then '<span class="label label-important">FAILED</span>'
+          else ''
+        end
       end
 
       def filter(collection)
