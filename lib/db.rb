@@ -107,6 +107,10 @@ module Tracker
         p.patch_set.refresh_status!
       end
 
+      after :save do |p|
+        p.patch_set.refresh_status!
+      end
+
     end
 
     class Log

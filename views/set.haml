@@ -31,6 +31,9 @@
         %a{ :class => 'badge', :href => '/build/%s/patches' % @set.id } Git
         %a{ :class => 'badge', :href => '/build/%s/install' % @set.id } Install
         %a{ :class => 'badge', :href => '/build/%s/build' % @set.id } Test
+  %tr
+    %th.well.t-label Status
+    %td=@set.status.upcase
 
 %h3 Patches in this set:
 
