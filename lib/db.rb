@@ -88,6 +88,8 @@ module Tracker
         new_state = status.to_s if new_state.intern == :note
         update!(:status => new_state.intern, :updated_by => author)
         (logs << Log.create(:message => message || '', :author => author, :action => new_state.to_s)) && save
+        reload
+        patch_set.refresh_status!
         self
       end
 
@@ -99,16 +101,6 @@ module Tracker
 
       def current_index
         1 + patch_set.patches.all(:order => [:id.asc ]).index(self)
-      end
-
-      # Update overall status of the patch set after each update
-      #
-      after :update do |p|
-        p.patch_set.refresh_status!
-      end
-
-      after :save do |p|
-        p.patch_set.refresh_status!
       end
 
     end
