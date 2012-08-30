@@ -66,7 +66,7 @@ module Tracker
       def filter(collection)
         return collection if !params[:filter]
         return [] if !params[:filter_value]
-        collection.all(:"#{params[:filter]}".like => '%'+params[:filter_value]+'%')
+        collection.all(:"#{params[:filter]}".like => params[:filter_value]+'%')
       end
 
       def format_counter(sets)
