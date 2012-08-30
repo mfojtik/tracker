@@ -29,6 +29,7 @@ def print_usage
   puts 'tracker ack       -   ACK all patches in current branch'
   puts 'tracker nack      -   NACK all patches in current branch'
   puts 'tracker push      -   Mark all patches in current branch as PUSHED'
+  puts 'tracker note      -   Annotate all patches and keep current state'
   puts 'tracker status    -   Display review status for current branch'
   puts 'tracker upload    -   Upload current patches (diffs) to tracker'
   puts 'tracker download  -   Download whole patchset from tracker (-i PATCHSET_ID, -b CREATE_BRANCH)'
@@ -48,11 +49,10 @@ end
 
 puts case ARGV[0]
   when 'record' then Tracker::Cmd.record(opts[:dir], { :obsolete => opts[:obsolete], :upload => opts[:upload]})
-
   when 'ack' then Tracker::Cmd.ack(opts[:dir], { :message => opts[:message], :set => opts[:id] })
   when 'nack' then Tracker::Cmd.nack(opts[:dir], { :message => opts[:message], :set => opts[:id] })
   when 'push' then Tracker::Cmd.push(opts[:dir], { :message => opts[:message], :set => opts[:id] })
-
+  when 'note' then Tracker::Cmd.note(opts[:dir], { :message => opts[:message], :set => opts[:id] })
   when 'upload' then Tracker::Cmd.upload(opts[:dir])
   when 'download' then Tracker::Cmd.download(opts[:dir], ARGV[1], opts[:branch])
   when 'status' then Tracker::Cmd.status(opts[:dir])

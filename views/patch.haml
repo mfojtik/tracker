@@ -31,7 +31,7 @@
       %tr
         %th{ :style => 'width:80px;' } Summary
         %td
-          %pre=h @patch.summary
+          %pre=h @patch.summary.gsub(/\n\n+/, "\n")
     %tr
       %th{:style => 'width:80px;'} Author
       %td=@patch.author

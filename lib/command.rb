@@ -79,7 +79,7 @@ module Tracker
         )
         response = JSON::parse(response)
         output = "#{number_of_commits} patches were recorded to the tracker server"+
-          " [#{config[:url]}][##{response['id']}][rev#{response['revision']}]"
+          " [\e[1m%s#{config[:url]}set/#{response['id']}\e[0m] [revision #{response['revision']}]"
         output += "\n" + upload(directory) if opts[:upload]
         output
       rescue => e
@@ -89,7 +89,7 @@ module Tracker
 
     def self.apply(directory, commit_id)
       patch_body = download_patch_body(commit_id)
-      File.open(File.join(directory, "#{commit_id}.patch"), 'w') { |f| f.puts patch_body }
+      File.open(File.join(directory, "#{commit_id}.patch"), 'w') { |f| f.write patch_body }
       print '[%s] Are you sure you want to apply patch to current branch? [Y/n]' % commit_id
       exit if (STDIN.gets.chomp) == 'n'
       git_cmd("git am #{commit_id}.patch", directory)
@@ -107,15 +107,14 @@ module Tracker
           patches[current_patch_commit] += line
         end
       end
-      begin
-        patches.each do |commit, body|
-          puts '[^] %s' % commit
+      upload_counter = 0
+      patches.each do |commit, body|
+        begin
           upload_patch_body(commit, body)
-        end
-        '%i patches were uploaded to tracker [%s]' % [patches.size, config[:url]]
-      rescue => e
-        e.message
+          upload_counter += 1
+        rescue;end
       end
+      '%i patches successfully uploaded' % [upload_counter]
     end
 
     def self.upload_patch_body(commit_id, body)
@@ -172,20 +171,14 @@ module Tracker
         exit
       end
       counter = 0
-      puts
       puts git_cmd("git checkout -b #{branch}", directory) if !branch.nil?
       patches.each do |commit|
         patch_filename = File.join(directory, "#{counter}-#{commit}.patch")
         File.open(patch_filename, 'w') { |f| f.puts download_patch_body(commit) }
-        if !branch.nil?
-          puts git_cmd("git am #{patch_filename}", directory)
-        else
-          puts '[v] %s-%s.patch' % [counter, commit]
-        end
+        puts git_cmd("git am #{patch_filename}", directory) if !branch.nil?
         counter += 1
       end
-      puts "\n -> #{counter} patches downloaded."
-      ''
+      "#{counter} patches successfully downloaded"
     end
 
     def self.obsolete_patchset(patchset_id)
@@ -196,7 +189,7 @@ module Tracker
           'Authorization' => "Basic #{basic_auth}"
         }
       )
-      puts 'This record marked patchset [#%s] as obsoleted.'
+      puts 'Set %s obsoleted.' % patchset_id
     end
 
     # Method perform given action on GIT branch with recorded commits.
@@ -207,7 +200,6 @@ module Tracker
     # * +directory+ - If given, cmd app will 'chdir' into that directory (default: nil)
     #
     def self.action(name, directory, options={})
-      puts
       if options[:set]
         begin
           RestClient.post(
@@ -220,19 +212,20 @@ module Tracker
               'Authorization' => "Basic #{basic_auth}"
             }
           )
-          puts '[%s][%s] Status of all patches in set updated.' % [name, options[:set]]
+          'All patches in set %s marked as %s' % [options[:set], name.to_s.upcase]
         rescue => e
-          puts '[ERR] %s' % e.message
+          '[ERR] %s' % e.message
         end
       else
         patches = JSON::parse(patches_to_json(directory))
         messages = patches.pop
+        patches_counter = 0
         patches.each do |p|
-          messages[p['hashes']['commit']]['full_message'][/TrackedAt: (.*)./m]
-          tracker_commit_url = $1.chop
-          if tracker_commit_url.nil?
-            puts '[ERR] Patch has not be recorded by tracker (no TrackedAt header)'
-            next
+          if messages[p['hashes']['commit']]['full_message'][/TrackedAt: (.*)./m]
+            tracker_commit_url = $1.chop
+          else
+            tracker_commit_url = config[:url] + '/patch/' + p['hashes']['commit']
+            warn "[warn] Patches not applied by tracker. Using current commit hash."
           end
           begin
             RestClient.post(
@@ -245,18 +238,20 @@ module Tracker
                 'Authorization' => "Basic #{basic_auth}"
               }
             )
-            puts '[%s][%s] %s' % [name.to_s.upcase, p['hashes']['commit'][-8, 8], messages[p['hashes']['commit']]['msg']]
+            puts "\e[1m%s\e[0m send for \e[1m%s\e[0m" % [name.to_s.upcase, tracker_commit_url]
+            patches_counter += 1
           rescue => e
             puts '[ERR] %s' % e.message
           end
         end
+        '%i patches status updated.' % patches_counter
       end
-      "  |\n  |--------> [%s]\n\n" % config[:url]
     end
 
     def self.ack(directory, opts={}); action(:ack, directory, opts); end
     def self.nack(directory, opts={}); action(:nack, directory, opts); end
     def self.push(directory, opts={}); action(:push, directory, opts); end
+    def self.note(directory, opts={}); action(:note, directory, opts); end
 
     def self.status(directory)
       patches = JSON::parse(patches_to_json(directory))
@@ -274,10 +269,8 @@ module Tracker
             }
           )
           response = JSON::parse(response)
-          puts '[%s][%s][rev%s] %s' % [
-            response['commit'][-8, 8],
+          puts "[%s] \e[1m%s\e[0m" % [
             response['status'].upcase,
-            response['revision'],
             response['message']
           ]
           counter+=1
@@ -289,7 +282,6 @@ module Tracker
       if counter == 0
         "ERR: This branch is not recorded yet. ($ tracker record)\n\n"
       else
-        "  |\n  |--------> [%s]\n\n" % config[:url]
       end
     end
 
