@@ -150,6 +150,18 @@ module Tracker
         patches.first(:order => [ :id.asc ]).message
       end
 
+      #get commit messages for all patches in set, used for index page
+      #(will most likely be truncated to some max chars length)
+      def all_patches_message
+        return 'No patches recorded in this set' if patches.empty?
+        all_patches = patches.all(:order => [:id.asc])
+        message = ""
+        all_patches.each_index do |i|
+          message << "#{i}/#{all_patches.size}: #{all_patches[i].message} &&"
+        end
+        message.chomp("&&")
+      end
+
       # Check if all patches in this set has given status
       #
       def acked?; all_status?(:ack); end
