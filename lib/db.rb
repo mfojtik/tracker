@@ -157,7 +157,7 @@ module Tracker
         all_patches = patches.all(:order => [:id.asc])
         message = ""
         all_patches.each_index do |i|
-          message << "#{i}/#{all_patches.size}: #{all_patches[i].message} &&"
+          message << "#{i+1}/#{all_patches.size}: #{all_patches[i].message} &&"
         end
         message.chomp("&&")
       end
