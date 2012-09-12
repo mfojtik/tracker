@@ -171,14 +171,24 @@ module Tracker
         exit
       end
       counter = 0
-      puts git_cmd("git checkout -b #{branch}", directory) if !branch.nil?
+      if !branch.nil?
+        puts git_cmd("git checkout -b #{branch}", directory)
+        exit 1 if $? != 0
+      end
       patches.each do |commit|
         patch_filename = File.join(directory, "#{counter}-#{commit}.patch")
         File.open(patch_filename, 'w') { |f| f.puts download_patch_body(commit) }
-        puts git_cmd("git am #{patch_filename}", directory) if !branch.nil?
+        if !branch.nil?
+          puts git_cmd("git am #{patch_filename}", directory)
+          FileUtils.rm_f(patch_filename)
+        end
         counter += 1
       end
-      "#{counter} patches successfully downloaded"
+      if !branch.nil?
+        "#{counter} patches successfully applied"
+      else
+        "#{counter} patches successfully downloaded"
+      end
     end
 
     def self.obsolete_patchset(patchset_id)
