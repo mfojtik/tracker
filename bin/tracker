@@ -14,7 +14,7 @@ opts = Trollop::options do
   opt :config, "Tracker config file location", :short => 'c', :default => "#{File.join(ENV['HOME'], '.trackerrc')}"
   opt :obsolete, "Used when recording new revision of patchset", :short => 'o', :type => :int
   opt :message, "Add short message to actions", :short => 'm', :type => :string
-  opt :id, "Patchset ID used by download action", :short => 'i', :type => :string
+  opt :id, "Set identifier used by download, ack, push or nack", :short => 'i', :type => :string
   opt :upload, 'Upload current branch patches after record', :short => 'u', :type => :flag
   opt :branch, 'Create specified branch when downloading patches', :short => 'b', :type => :string
 end
@@ -41,7 +41,7 @@ def print_usage
   puts 'Examples:'
   puts
   puts '$ tracker record -o 45           # Record current branch and obsolete patchset 45 (bump revision)'
-  puts '$ tracker record -u              # Record current branch and upload all patches'
+  puts '$ tracker download 45 -b review  # Download set 45, create branch "review" and apply the downloaded patches'
   puts '$ tracker list new               # Display all new or open sets'
   puts '$ tracker list mfojtik -i author # Display all sets that were recorded by %mfojtik%'
   ''

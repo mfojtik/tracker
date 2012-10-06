@@ -79,7 +79,7 @@ module Tracker
         )
         response = JSON::parse(response)
         output = "#{number_of_commits} patches were recorded to the tracker server"+
-          " [\e[1m%s#{config[:url]}set/#{response['id']}\e[0m] [revision #{response['revision']}]"
+          " [\e[1m#{config[:url]}set/#{response['id']}\e[0m] [revision #{response['revision']}]"
         output += "\n" + upload(directory) if opts[:upload]
         output
       rescue => e
@@ -179,7 +179,16 @@ module Tracker
         patch_filename = File.join(directory, "#{counter}-#{commit}.patch")
         File.open(patch_filename, 'w') { |f| f.puts download_patch_body(commit) }
         if !branch.nil?
-          puts git_cmd("git am #{patch_filename}", directory)
+          begin
+            puts git_cmd("git am #{patch_filename}", directory)
+          rescue ChildCommandError => e
+            puts git_cmd "git am --abort", directory
+            puts git_cmd "git checkout master", directory
+            puts git_cmd "git branch -D #{branch}", directory
+            puts "ERROR: #{e.message}. Reverting back to 'master' branch."
+            puts "Downloaded patch saved to :#{patch_filename}"
+            exit 1
+          end
           FileUtils.rm_f(patch_filename)
         end
         counter += 1
@@ -327,6 +336,8 @@ module Tracker
       ''
     end
 
+    class ChildCommandError < StandardError; end
+
     private
 
     # Execute GIT command ('git') in the specified directory. Method will then
@@ -340,7 +351,9 @@ module Tracker
       begin
         Dir.chdir(directory)
         result = %x[#{cmd}]
+        raise ChildCommandError.new("Child process returned #{$?}") if $? != 0
       rescue => e
+        raise e if e.kind_of? ChildCommandError
         puts "ERROR: #{e.message}"
         exit(1)
       ensure
