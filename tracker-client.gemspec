@@ -3,7 +3,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = "tracker-client"
-  s.version     = '1.1.2'
+  s.version     = '1.1.3'
   s.platform    = Gem::Platform::RUBY
   s.license     = "ASL"
   s.authors     = ["Michal Fojtik"]

@@ -6,6 +6,9 @@ module Tracker
     require 'base64'
     require 'tempfile'
 
+    RestClient.proxy = ENV['http_proxy'] if ENV['http_proxy']
+    RestClient.proxy = ENV['HTTP_PROXY'] if ENV['HTTP_PROXY']
+
     GIT_JSON_FORMAT = '{ "hashes":'+
       '{ "commit":"%H", "tree":"%T",'+' "parents":"%P" },'+
       '"author":{ "date": "%ai", "name": "%an", "email":"%ae" },'+
