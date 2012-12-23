@@ -1,7 +1,8 @@
-#!/user/bin/env ruby
+#!/usr/bin/env ruby
 
 require 'rubygems'
 require 'rake'
+require 'torquebox-rake-support'
 
 desc "Install/reinstall the tracker-client from GIT repository"
 task :reinstall do

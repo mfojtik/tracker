@@ -1,9 +1,15 @@
 module Tracker
+
   require 'logger'
 
   def self.notify(message)
-    SUPPORTED_NOTIFICATIONS.each do |m, klass|
-      klass.new(message).notify
+    if RUBY_PLATFORM == 'java'
+      queue = TorqueBox::Messaging::Queue.new('/queues/mail')
+      queue.publish(message)
+    else
+      SUPPORTED_NOTIFICATIONS.each do |m, klass|
+        klass.new(message).notify
+      end
     end
   end
 
@@ -12,6 +18,7 @@ module Tracker
   end
 
   class Notification
+
     attr_reader :message
 
     def initialize(message)
