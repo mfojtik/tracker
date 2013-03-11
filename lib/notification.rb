@@ -39,7 +39,6 @@ module Tracker
     def notify
       email(super)
     end
-    require 'pry'
 
     def email(message)
       subject = message.split('Hi:', 2).first
