@@ -20,15 +20,15 @@ module Tracker
       include DataMapper::Resource
 
       property :id, Serial
-      property :commit, String
-      property :author, String
-      property :message, Text
-      property :summary, Text
+      property :commit, String, :lazy => true
+      property :author, String, :lazy => true
+      property :message, Text, :lazy => true
+      property :summary, Text, :lazy => true
       property :commited_at, DateTime
-      property :status, Enum[ :new, :ack, :nack, :push ], :default => :new
+      property :status, Enum[ :new, :ack, :nack, :push ], :default => :new, :index => true
       property :updated_by, String
       property :revision, Integer
-      property :body, Text
+      property :body, Text, :lazy => true
 
       property :created_at, DateTime
       property :updated_at, DateTime
@@ -175,7 +175,7 @@ module Tracker
       # Return only non-obsoleted patches
       #
       def self.active
-        all(:revision.gt => 0, :order => [ :id.desc ])
+        all(:revision.gt => 0, :status.not => 'push', :order => [ :id.desc ])
       end
 
       # Mark the set as obsolete

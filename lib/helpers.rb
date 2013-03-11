@@ -61,9 +61,8 @@ module Tracker
       end
 
       def format_counter(sets)
-        new_requests_count = sets.size - sets.select { |s| (s.acked? || s.nacked? || s.pushed?) }.size
-        not_pushed_count = sets.size - (sets.select { |s| s.pushed? || s.nacked? }.size + new_requests_count)
-        '%i new requests, %i not pushed' % [ new_requests_count, not_pushed_count]
+        not_pushed_count = sets.size - (sets.select { |s| s.nacked? }.size )
+        '%i not pushed' % [ not_pushed_count]
       end
 
       def format_status(value)

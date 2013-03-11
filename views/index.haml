@@ -1,12 +1,10 @@
-%h2=@counter
-
 %p.pull-right
   - if !authorized?
-    %a.btn.btn-info{ :href => '/login'} Login
+    %a.btn.btn-info.login{ :href => '/login'} Login
 
-%br
+%h2=@counter
 
-%p.pull-right
+%p.pull-right{:style=>"text-align:right;"}
   %small
     Display only:
     %a{ :href => '?filter=status&filter_value=new', :style => 'color:#84b6eb'} New

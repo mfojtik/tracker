@@ -39,10 +39,11 @@ module Tracker
     def notify
       email(super)
     end
+    require 'pry'
 
     def email(message)
-      subject, body = message.split(':', 2)
-      puts body
+      subject = message.split('Hi:', 2).first
+      body = "Hi#{message.split(':', 2).last}"
       begin
         Pony.mail(
           :to => recipients,

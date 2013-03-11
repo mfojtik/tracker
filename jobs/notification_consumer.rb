@@ -1,4 +1,5 @@
 require_relative '../lib/notification'
+require 'pony'
 
 module Jobs
   class NotificationConsumer < TorqueBox::Messaging::MessageProcessor
