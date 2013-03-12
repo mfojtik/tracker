@@ -45,7 +45,7 @@
 %br
 
 %table.table.table-bordered
-  - @set.patches.all(:order => [ :id.asc ]).each do |p|
+  - @set.patches.all(:order => [ :id.desc ]).each do |p|
     %tr
       %td.t-label{:style => 'width:40px'}
         %span.badge.badge-inverse="PATCH #{p.current_index}/#{@set.num_of_patches}"
