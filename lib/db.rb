@@ -100,7 +100,7 @@ module Tracker
       end
 
       def current_index
-        1 + patch_set.patches.all(:order => [:id.asc ]).index(self)
+        1 + patch_set.patches.all(:order => [:id.desc ]).index(self)
       end
 
     end
